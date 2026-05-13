@@ -1,7 +1,7 @@
 <?php
 /**
- * Plugin Name: Simple Randomized Wheel
- * Description: Adds Randomizer Wheel shortcodes for user-entered randomized selections.
+ * Plugin Name: Randomizer Wheel
+ * Description: A customizable spin wheel WordPress plugin for random selections, giveaways, content ideas, and interactive decisions.
  * Version: 1.0.0
  * Author: Wm. James McCormick
  */
