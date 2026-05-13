@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 /**
  * Handles Randomizer Wheel frontend assets.
  */
-class SRW_Assets {
+class RWP_Assets {
     /**
      * Shared style/script handle.
      */
@@ -22,16 +22,16 @@ class SRW_Assets {
     public static function register() {
         wp_register_style(
             self::HANDLE,
-            SRW_PLUGIN_URL . 'assets/css/randomizer-wheel.css',
+            RWP_PLUGIN_URL . 'assets/css/randomizer-wheel.css',
             [],
-            SRW_VERSION
+            RWP_VERSION
         );
 
         wp_register_script(
             self::HANDLE,
-            SRW_PLUGIN_URL . 'assets/js/randomizer-wheel.js',
+            RWP_PLUGIN_URL . 'assets/js/randomizer-wheel.js',
             [],
-            SRW_VERSION,
+            RWP_VERSION,
             true
         );
     }
@@ -49,20 +49,20 @@ class SRW_Assets {
     }
 }
 
-if (!function_exists('srw_register_assets')) {
+if (!function_exists('rwp_register_assets')) {
     /**
-     * Backward-compatible wrapper for registering frontend assets.
+     * Procedural wrapper for registering frontend assets.
      */
-    function srw_register_assets() {
-        SRW_Assets::register();
+    function rwp_register_assets() {
+        RWP_Assets::register();
     }
 }
 
-if (!function_exists('srw_enqueue_assets')) {
+if (!function_exists('rwp_enqueue_assets')) {
     /**
-     * Backward-compatible wrapper for enqueueing frontend assets.
+     * Procedural wrapper for enqueueing frontend assets.
      */
-    function srw_enqueue_assets() {
-        SRW_Assets::enqueue();
+    function rwp_enqueue_assets() {
+        RWP_Assets::enqueue();
     }
 }

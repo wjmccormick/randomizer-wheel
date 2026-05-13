@@ -6,7 +6,7 @@
     function parseItems(textarea) {
 
         var items = textarea.value
-            .split('\\n')
+            .split(/\r\n|\r|\n/)
             .map(function (item) {
                 return item.trim();
             })
@@ -425,7 +425,7 @@
                 return item !== currentWinner;
             });
 
-            textarea.value = items.join('\\n');
+            textarea.value = items.join('\n');
 
             currentWinner = null;
             removeButton.disabled = true;

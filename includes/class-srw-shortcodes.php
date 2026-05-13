@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 /**
  * Handles Randomizer Wheel shortcodes.
  */
-class SRW_Shortcodes {
+class RWP_Shortcodes {
     /**
      * Register preferred and legacy shortcodes.
      */
@@ -34,15 +34,15 @@ class SRW_Shortcodes {
      * - Winner announcement modal
      */
     public static function render_randomized_wheel() {
-        srw_enqueue_assets();
+        rwp_enqueue_assets();
 
         $wheel_id = 'srw-wheel-' . wp_rand(1000, 999999);
         $winner_title_id = $wheel_id . '-winner-title';
-        $logo_url_black = SRW_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-dark.svg';
-        $logo_url_white = SRW_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-light.svg';
+        $logo_url_black = RWP_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-dark.svg';
+        $logo_url_white = RWP_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-light.svg';
 
         ob_start();
-        require SRW_PLUGIN_DIR . 'public/templates/wheel.php';
+        require RWP_PLUGIN_DIR . 'public/templates/wheel.php';
         return ob_get_clean();
     }
 
@@ -57,11 +57,11 @@ class SRW_Shortcodes {
      * @param array $atts Shortcode attributes.
      */
     public static function render_wheel_hero($atts = []) {
-        srw_enqueue_assets();
+        rwp_enqueue_assets();
 
         $wheel_id = 'srw-hero-' . wp_rand(1000, 999999);
         $atts = shortcode_atts(['link' => '/randomizer-wheel/'], $atts, 'randomizer_wheel_hero');
-        $logo_url_black = SRW_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-dark.svg';
+        $logo_url_black = RWP_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-dark.svg';
 
         $demo_items = [
             'Option A',
@@ -87,27 +87,27 @@ class SRW_Shortcodes {
         ];
 
         ob_start();
-        require SRW_PLUGIN_DIR . 'public/templates/hero.php';
+        require RWP_PLUGIN_DIR . 'public/templates/hero.php';
         return ob_get_clean();
     }
 }
 
-if (!function_exists('srw_render_randomized_wheel')) {
+if (!function_exists('rwp_render_randomized_wheel')) {
     /**
-     * Backward-compatible wrapper for rendering the full wheel shortcode.
+     * Procedural wrapper for rendering the full wheel shortcode.
      */
-    function srw_render_randomized_wheel() {
-        return SRW_Shortcodes::render_randomized_wheel();
+    function rwp_render_randomized_wheel() {
+        return RWP_Shortcodes::render_randomized_wheel();
     }
 }
 
-if (!function_exists('srw_render_wheel_hero')) {
+if (!function_exists('rwp_render_wheel_hero')) {
     /**
-     * Backward-compatible wrapper for rendering the hero shortcode.
+     * Procedural wrapper for rendering the hero shortcode.
      *
      * @param array $atts Shortcode attributes.
      */
-    function srw_render_wheel_hero($atts = []) {
-        return SRW_Shortcodes::render_wheel_hero($atts);
+    function rwp_render_wheel_hero($atts = []) {
+        return RWP_Shortcodes::render_wheel_hero($atts);
     }
 }
