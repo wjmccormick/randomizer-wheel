@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Node / frontend tooling
+node_modules/
+
+# Composer
+vendor/
+
+# IDEs
+.idea/
+.vscode/
+
+# Build artifacts
+*.zip
+
+# Logs
+*.log
+
+# Environment files
+.env
