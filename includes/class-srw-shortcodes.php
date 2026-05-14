@@ -1,0 +1,264 @@
+<?php
+/**
+ * Shortcode registration and rendering.
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * Handles Randomizer Wheel shortcodes.
+ */
+class RWP_Shortcodes {
+    /**
+     * Register preferred and legacy shortcodes.
+     */
+    public static function register() {
+        add_shortcode('randomizer_wheel', [__CLASS__, 'render_randomized_wheel']);
+        add_shortcode('randomized_wheel', [__CLASS__, 'render_randomized_wheel']);
+        add_shortcode('randomizer_wheel_hero', [__CLASS__, 'render_wheel_hero']);
+        add_shortcode('whiskey_wheel_hero', [__CLASS__, 'render_wheel_hero']);
+    }
+
+    /**
+     * Render the full interactive randomized wheel.
+     *
+     * Shortcodes: [randomizer_wheel], [randomized_wheel]
+     *
+     * Includes:
+     * - User textarea input
+     * - Entry count
+     * - Standard wheel
+     * - Presentation mode
+     * - Winner announcement modal
+     *
+     * @param array $atts Shortcode attributes.
+     */
+    public static function render_randomized_wheel($atts = []) {
+        rwp_enqueue_assets();
+
+        $settings = RWP_Settings::get_settings();
+        $raw_atts = (array) $atts;
+        $atts = shortcode_atts([
+            'title' => null,
+            'placeholder' => null,
+            'logo' => null,
+            'logo_alt' => null,
+            'show_presentation' => null,
+            'show_remove_winner' => null,
+            'min_items' => null,
+        ], $atts, 'randomizer_wheel');
+
+        $title = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'title', $settings, 'full_title'));
+        $placeholder = self::sanitize_textarea(self::attribute_or_setting($raw_atts, $atts, 'placeholder', $settings, 'full_placeholder'));
+        $logo_alt = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'logo_alt', $settings, 'full_logo_alt'));
+
+        if (!$logo_alt) {
+            $logo_alt = RWP_Settings::defaults()['full_logo_alt'];
+        }
+
+        $show_presentation = array_key_exists('show_presentation', $raw_atts)
+            ? self::sanitize_bool($atts['show_presentation'])
+            : (bool) $settings['full_show_presentation'];
+
+        $show_remove_winner = array_key_exists('show_remove_winner', $raw_atts)
+            ? self::sanitize_bool($atts['show_remove_winner'])
+            : (bool) $settings['full_show_remove_winner'];
+
+        $min_items = array_key_exists('min_items', $raw_atts)
+            ? max(1, absint($atts['min_items']))
+            : max(1, absint($settings['full_min_items']));
+
+        $default_logo_url_black = RWP_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-dark.svg';
+        $default_logo_url_white = RWP_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-light.svg';
+        $custom_logo_url = self::sanitize_url(self::attribute_or_setting($raw_atts, $atts, 'logo', $settings, 'full_logo'));
+
+        $logo_url_black = $custom_logo_url ? $custom_logo_url : $default_logo_url_black;
+        $logo_url_white = $custom_logo_url ? $custom_logo_url : $default_logo_url_white;
+        $presentation_title = $title ? $title : 'Randomizer Wheel';
+
+        $wheel_id = 'srw-wheel-' . wp_rand(1000, 999999);
+        $winner_title_id = $wheel_id . '-winner-title';
+
+        ob_start();
+        require RWP_PLUGIN_DIR . 'public/templates/wheel.php';
+        return ob_get_clean();
+    }
+
+    /**
+     * Render the homepage hero/demo wheel.
+     *
+     * Shortcode: [randomizer_wheel_hero link="/randomizer-wheel/"]
+     *
+     * The legacy [whiskey_wheel_hero] shortcode remains registered as a backward-compatible alias.
+     * This is decorative/marketing-focused and links users to the full wheel page.
+     *
+     * @param array $atts Shortcode attributes.
+     */
+    public static function render_wheel_hero($atts = []) {
+        rwp_enqueue_assets();
+
+        $settings = RWP_Settings::get_settings();
+        $raw_atts = (array) $atts;
+        $atts = shortcode_atts([
+            'title' => null,
+            'items' => null,
+            'link' => null,
+            'cta_text' => null,
+            'logo' => null,
+            'logo_alt' => null,
+        ], $atts, 'randomizer_wheel_hero');
+
+        $title = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'title', $settings, 'hero_title'));
+        $link = self::sanitize_url(self::attribute_or_setting($raw_atts, $atts, 'link', $settings, 'hero_link'));
+        $cta_text = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'cta_text', $settings, 'hero_cta_text'));
+        $logo_alt = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'logo_alt', $settings, 'hero_logo_alt'));
+        $logo_url_black = self::sanitize_url(self::attribute_or_setting($raw_atts, $atts, 'logo', $settings, 'hero_logo'));
+
+        $demo_items = array_key_exists('items', $raw_atts)
+            ? self::sanitize_items($atts['items'])
+            : self::sanitize_items($settings['hero_items']);
+
+        $defaults = RWP_Settings::defaults();
+
+        if (!$link) {
+            $link = $defaults['hero_link'];
+        }
+
+        if (!$cta_text) {
+            $cta_text = $defaults['hero_cta_text'];
+        }
+
+        if (!$logo_alt) {
+            $logo_alt = $defaults['hero_logo_alt'];
+        }
+
+        if (!$logo_url_black) {
+            $logo_url_black = RWP_PLUGIN_URL . 'assets/images/randomizer-wheel-logo-dark.svg';
+        }
+
+        if (!$demo_items) {
+            $demo_items = self::sanitize_items($defaults['hero_items']);
+        }
+
+        $hero_title = $title ? $title : $cta_text;
+        $wheel_id = 'srw-hero-' . wp_rand(1000, 999999);
+
+        ob_start();
+        require RWP_PLUGIN_DIR . 'public/templates/hero.php';
+        return ob_get_clean();
+    }
+
+    /**
+     * Resolve a shortcode attribute or saved setting value.
+     *
+     * @param array  $raw_atts Raw shortcode attributes.
+     * @param array  $atts Normalized shortcode attributes.
+     * @param string $attribute Attribute name.
+     * @param array  $settings Saved settings.
+     * @param string $setting Setting key.
+     * @return mixed
+     */
+    private static function attribute_or_setting($raw_atts, $atts, $attribute, $settings, $setting) {
+        if (array_key_exists($attribute, $raw_atts)) {
+            return $atts[$attribute];
+        }
+
+        return $settings[$setting] ?? RWP_Settings::defaults()[$setting];
+    }
+
+    /**
+     * Sanitize a plain text shortcode value.
+     *
+     * @param mixed $value Raw value.
+     * @return string
+     */
+    private static function sanitize_text($value) {
+        return sanitize_text_field((string) $value);
+    }
+
+    /**
+     * Sanitize a multiline shortcode value.
+     *
+     * @param mixed $value Raw value.
+     * @return string
+     */
+    private static function sanitize_textarea($value) {
+        return sanitize_textarea_field((string) $value);
+    }
+
+    /**
+     * Sanitize a URL shortcode value.
+     *
+     * @param mixed $value Raw value.
+     * @return string
+     */
+    private static function sanitize_url($value) {
+        return esc_url_raw((string) $value);
+    }
+
+    /**
+     * Sanitize a boolean-like shortcode value.
+     *
+     * @param mixed $value Raw value.
+     * @return bool
+     */
+    private static function sanitize_bool($value) {
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        $value = strtolower(trim((string) $value));
+
+        if (in_array($value, ['false', '0', 'no', 'off'], true)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Sanitize separated hero items.
+     *
+     * @param mixed $value Raw value.
+     * @return array
+     */
+    private static function sanitize_items($value) {
+        if ('' === trim((string) $value)) {
+            return [];
+        }
+
+        $items = preg_split('/\r\n|\r|\n|\|/', (string) $value);
+        $items = array_map('trim', $items);
+        $items = array_map(static function ($item) {
+            return self::sanitize_text($item);
+        }, $items);
+
+        return array_values(array_filter($items, static function ($item) {
+            return '' !== $item;
+        }));
+    }
+}
+
+if (!function_exists('rwp_render_randomized_wheel')) {
+    /**
+     * Procedural wrapper for rendering the full wheel shortcode.
+     *
+     * @param array $atts Shortcode attributes.
+     */
+    function rwp_render_randomized_wheel($atts = []) {
+        return RWP_Shortcodes::render_randomized_wheel($atts);
+    }
+}
+
+if (!function_exists('rwp_render_wheel_hero')) {
+    /**
+     * Procedural wrapper for rendering the hero shortcode.
+     *
+     * @param array $atts Shortcode attributes.
+     */
+    function rwp_render_wheel_hero($atts = []) {
+        return RWP_Shortcodes::render_wheel_hero($atts);
+    }
+}
