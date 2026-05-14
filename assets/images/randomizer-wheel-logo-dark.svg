@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-labelledby="title desc">
+  <title id="title">Randomizer Wheel logo</title>
+  <desc id="desc">A neutral segmented wheel icon for the Randomizer Wheel plugin.</desc>
+  <circle cx="120" cy="120" r="112" fill="#ffffff" stroke="#111827" stroke-width="10"/>
+  <path d="M120 120V16a104 104 0 0 1 90.1 52Z" fill="#ef4444"/>
+  <path d="M120 120l90.1-52a104 104 0 0 1 0 104Z" fill="#f59e0b"/>
+  <path d="M120 120l90.1 52A104 104 0 0 1 120 224Z" fill="#10b981"/>
+  <path d="M120 120v104a104 104 0 0 1-90.1-52Z" fill="#3b82f6"/>
+  <path d="M120 120l-90.1 52a104 104 0 0 1 0-104Z" fill="#8b5cf6"/>
+  <path d="M120 120 29.9 68A104 104 0 0 1 120 16Z" fill="#ec4899"/>
+  <circle cx="120" cy="120" r="42" fill="#ffffff" stroke="#111827" stroke-width="8"/>
+  <path d="M120 71v98M71 120h98" stroke="#111827" stroke-width="12" stroke-linecap="round"/>
+</svg>
