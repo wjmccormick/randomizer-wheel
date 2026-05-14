@@ -17,11 +17,18 @@ class RWP_Settings {
     const OPTION_NAME = 'rwp_settings';
 
     /**
+     * Settings page slug.
+     */
+    const PAGE_SLUG = 'randomizer-wheel';
+
+    /**
      * Register admin hooks.
      */
     public static function register() {
         add_action('admin_menu', [__CLASS__, 'add_settings_page']);
         add_action('admin_init', [__CLASS__, 'register_settings']);
+        add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_assets']);
+        add_filter('plugin_action_links_' . plugin_basename(RWP_PLUGIN_FILE), [__CLASS__, 'add_settings_link']);
     }
 
     /**
@@ -51,6 +58,10 @@ class RWP_Settings {
             'hero_cta_text' => 'Create Your Randomizer Wheel',
             'hero_logo' => '',
             'hero_logo_alt' => 'Randomizer Wheel logo',
+            'primary_color' => '#8b5a2b',
+            'secondary_color' => '#c28a2c',
+            'accent_color' => '#b8860b',
+            'button_color' => '#222222',
         ];
     }
 
@@ -77,8 +88,56 @@ class RWP_Settings {
             'Randomizer Wheel',
             'Randomizer Wheel',
             'manage_options',
-            'randomizer-wheel',
+            self::PAGE_SLUG,
             [__CLASS__, 'render_settings_page']
+        );
+    }
+
+    /**
+     * Add Settings link to the plugins list table.
+     *
+     * @param array $links Existing action links.
+     * @return array
+     */
+    public static function add_settings_link($links) {
+        $settings_link = sprintf(
+            '<a href="%1$s">%2$s</a>',
+            esc_url(admin_url('options-general.php?page=' . self::PAGE_SLUG)),
+            esc_html('Settings')
+        );
+
+        array_unshift($links, $settings_link);
+
+        return $links;
+    }
+
+    /**
+     * Enqueue admin assets only for this settings page.
+     *
+     * @param string $hook_suffix Admin page hook suffix.
+     */
+    public static function enqueue_admin_assets($hook_suffix) {
+        if ('settings_page_' . self::PAGE_SLUG !== $hook_suffix) {
+            return;
+        }
+
+        wp_enqueue_media();
+        wp_enqueue_style('wp-color-picker');
+        wp_enqueue_script('wp-color-picker');
+
+        wp_enqueue_style(
+            'rwp-admin-settings',
+            RWP_PLUGIN_URL . 'assets/css/randomizer-wheel-admin.css',
+            [],
+            RWP_VERSION
+        );
+
+        wp_enqueue_script(
+            'rwp-admin-settings',
+            RWP_PLUGIN_URL . 'assets/js/randomizer-wheel-admin.js',
+            ['jquery', 'wp-color-picker'],
+            RWP_VERSION,
+            true
         );
     }
 
@@ -100,30 +159,42 @@ class RWP_Settings {
             'rwp_full_wheel_section',
             'Full Wheel Defaults',
             [__CLASS__, 'render_full_wheel_section'],
-            'randomizer-wheel'
+            self::PAGE_SLUG
         );
 
         add_settings_section(
             'rwp_hero_wheel_section',
             'Hero Wheel Defaults',
             [__CLASS__, 'render_hero_wheel_section'],
-            'randomizer-wheel'
+            self::PAGE_SLUG
         );
 
-        self::add_field('full_title', 'Default title', 'text', 'rwp_full_wheel_section');
-        self::add_field('full_placeholder', 'Default placeholder text', 'textarea', 'rwp_full_wheel_section');
-        self::add_field('full_logo', 'Default logo URL', 'url', 'rwp_full_wheel_section');
-        self::add_field('full_logo_alt', 'Default logo alt text', 'text', 'rwp_full_wheel_section');
-        self::add_field('full_show_presentation', 'Show presentation mode by default', 'checkbox', 'rwp_full_wheel_section');
-        self::add_field('full_show_remove_winner', 'Show remove winner by default', 'checkbox', 'rwp_full_wheel_section');
-        self::add_field('full_min_items', 'Default minimum items', 'number', 'rwp_full_wheel_section');
+        add_settings_section(
+            'rwp_branding_section',
+            'Branding & Future Theme Defaults',
+            [__CLASS__, 'render_branding_section'],
+            self::PAGE_SLUG
+        );
 
-        self::add_field('hero_title', 'Default hero title', 'text', 'rwp_hero_wheel_section');
-        self::add_field('hero_items', 'Default hero items', 'textarea', 'rwp_hero_wheel_section');
-        self::add_field('hero_link', 'Default hero link', 'url', 'rwp_hero_wheel_section');
-        self::add_field('hero_cta_text', 'Default hero CTA text', 'text', 'rwp_hero_wheel_section');
-        self::add_field('hero_logo', 'Default hero logo URL', 'url', 'rwp_hero_wheel_section');
-        self::add_field('hero_logo_alt', 'Default hero logo alt text', 'text', 'rwp_hero_wheel_section');
+        self::add_field('full_title', 'Default title', 'text', 'rwp_full_wheel_section', 'Optional heading shown above the full wheel input panel.');
+        self::add_field('full_placeholder', 'Default placeholder text', 'textarea', 'rwp_full_wheel_section', 'Shown inside the full wheel textarea before visitors add items.');
+        self::add_field('full_logo', 'Default logo URL', 'media', 'rwp_full_wheel_section', 'Choose or paste the default full wheel logo URL.');
+        self::add_field('full_logo_alt', 'Default logo alt text', 'text', 'rwp_full_wheel_section', 'Accessible alt text for the full wheel logo.');
+        self::add_field('full_show_presentation', 'Show presentation mode by default', 'checkbox', 'rwp_full_wheel_section', 'Shortcode attributes can still hide presentation mode per wheel.');
+        self::add_field('full_show_remove_winner', 'Show remove winner by default', 'checkbox', 'rwp_full_wheel_section', 'Shortcode attributes can still hide remove-winner controls per wheel.');
+        self::add_field('full_min_items', 'Default minimum items', 'number', 'rwp_full_wheel_section', 'Minimum number of parsed items required before spinning.');
+
+        self::add_field('hero_title', 'Default hero title', 'text', 'rwp_hero_wheel_section', 'Optional link title text; falls back to the CTA text when empty.');
+        self::add_field('hero_items', 'Default hero items', 'textarea', 'rwp_hero_wheel_section', 'Enter one item per line for the hero wheel demo.');
+        self::add_field('hero_link', 'Default hero link', 'url', 'rwp_hero_wheel_section', 'URL opened when visitors click the hero wheel.');
+        self::add_field('hero_cta_text', 'Default hero CTA text', 'text', 'rwp_hero_wheel_section', 'Accessible label for the hero wheel link.');
+        self::add_field('hero_logo', 'Default hero logo URL', 'media', 'rwp_hero_wheel_section', 'Choose or paste the default hero logo URL.');
+        self::add_field('hero_logo_alt', 'Default hero logo alt text', 'text', 'rwp_hero_wheel_section', 'Accessible alt text for the hero logo.');
+
+        self::add_field('primary_color', 'Primary color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
+        self::add_field('secondary_color', 'Secondary color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
+        self::add_field('accent_color', 'Accent color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
+        self::add_field('button_color', 'Button color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
     }
 
     /**
@@ -157,6 +228,10 @@ class RWP_Settings {
             'hero_cta_text' => sanitize_text_field($input['hero_cta_text'] ?? $defaults['hero_cta_text']),
             'hero_logo' => esc_url_raw($input['hero_logo'] ?? $defaults['hero_logo']),
             'hero_logo_alt' => sanitize_text_field($input['hero_logo_alt'] ?? $defaults['hero_logo_alt']),
+            'primary_color' => self::sanitize_hex_color_setting($input['primary_color'] ?? $defaults['primary_color'], $defaults['primary_color']),
+            'secondary_color' => self::sanitize_hex_color_setting($input['secondary_color'] ?? $defaults['secondary_color'], $defaults['secondary_color']),
+            'accent_color' => self::sanitize_hex_color_setting($input['accent_color'] ?? $defaults['accent_color'], $defaults['accent_color']),
+            'button_color' => self::sanitize_hex_color_setting($input['button_color'] ?? $defaults['button_color'], $defaults['button_color']),
         ];
     }
 
@@ -175,14 +250,21 @@ class RWP_Settings {
      * Render full wheel section description.
      */
     public static function render_full_wheel_section() {
-        echo '<p>' . esc_html('These defaults apply to [randomizer_wheel] and [randomized_wheel] unless a shortcode attribute overrides them.') . '</p>';
+        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel] and [randomized_wheel]. Shortcode attributes override these values for an individual wheel.') . '</p>';
     }
 
     /**
      * Render hero wheel section description.
      */
     public static function render_hero_wheel_section() {
-        echo '<p>' . esc_html('These defaults apply to [randomizer_wheel_hero] and [whiskey_wheel_hero] unless a shortcode attribute overrides them.') . '</p>';
+        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel_hero] and [whiskey_wheel_hero]. Shortcode attributes override these values for an individual hero wheel.') . '</p>';
+    }
+
+    /**
+     * Render branding section description.
+     */
+    public static function render_branding_section() {
+        echo '<p>' . esc_html('These color values are saved for a later theming phase and are not applied to the frontend wheel yet.') . '</p>';
     }
 
     /**
@@ -192,18 +274,20 @@ class RWP_Settings {
      * @param string $label Field label.
      * @param string $type Field type.
      * @param string $section Section ID.
+     * @param string $description Field description.
      */
-    private static function add_field($key, $label, $type, $section) {
+    private static function add_field($key, $label, $type, $section, $description = '') {
         add_settings_field(
             'rwp_' . $key,
             $label,
             [__CLASS__, 'render_field'],
-            'randomizer-wheel',
+            self::PAGE_SLUG,
             $section,
             [
                 'key' => $key,
                 'label' => $label,
                 'type' => $type,
+                'description' => $description,
             ]
         );
     }
@@ -217,6 +301,7 @@ class RWP_Settings {
         $settings = self::get_settings();
         $key = $args['key'];
         $type = $args['type'];
+        $description = $args['description'] ?? '';
         $name = self::OPTION_NAME . '[' . $key . ']';
         $value = $settings[$key] ?? '';
 
@@ -227,6 +312,7 @@ class RWP_Settings {
                 esc_attr($name),
                 esc_textarea($value)
             );
+            self::render_description($description);
             return;
         }
 
@@ -238,6 +324,7 @@ class RWP_Settings {
                 checked((bool) $value, true, false),
                 esc_html('Enabled')
             );
+            self::render_description($description);
             return;
         }
 
@@ -248,6 +335,30 @@ class RWP_Settings {
                 esc_attr($name),
                 esc_attr($value)
             );
+            self::render_description($description);
+            return;
+        }
+
+        if ('media' === $type) {
+            printf(
+                '<div class="rwp-media-field"><input type="url" id="%1$s" name="%2$s" value="%3$s" class="regular-text rwp-media-url"><button type="button" class="button rwp-media-select" data-target="%1$s">%4$s</button></div>',
+                esc_attr('rwp_' . $key),
+                esc_attr($name),
+                esc_attr($value),
+                esc_html('Select from Media Library')
+            );
+            self::render_description($description);
+            return;
+        }
+
+        if ('color' === $type) {
+            printf(
+                '<input type="text" id="%1$s" name="%2$s" value="%3$s" class="rwp-color-field" data-default-color="%3$s">',
+                esc_attr('rwp_' . $key),
+                esc_attr($name),
+                esc_attr($value)
+            );
+            self::render_description($description);
             return;
         }
 
@@ -258,5 +369,32 @@ class RWP_Settings {
             esc_attr($name),
             esc_attr($value)
         );
+        self::render_description($description);
+    }
+
+    /**
+     * Render a field description.
+     *
+     * @param string $description Description text.
+     */
+    private static function render_description($description) {
+        if (!$description) {
+            return;
+        }
+
+        echo '<p class="description">' . esc_html($description) . '</p>';
+    }
+
+    /**
+     * Sanitize a hex color with fallback.
+     *
+     * @param mixed  $value Raw value.
+     * @param string $fallback Fallback value.
+     * @return string
+     */
+    private static function sanitize_hex_color_setting($value, $fallback) {
+        $color = sanitize_hex_color((string) $value);
+
+        return $color ? $color : $fallback;
     }
 }

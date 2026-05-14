@@ -84,3 +84,14 @@ The settings page stores defaults for the full wheel and hero wheel in one optio
 - Default hero CTA text
 - Default hero logo URL
 - Default hero logo alt text
+
+### Admin UX and branding controls
+
+The settings page includes a direct **Settings** link from the WordPress Plugins screen. Logo URL fields include Media Library selection buttons, and color fields use the WordPress color picker.
+
+The following color defaults are stored in `rwp_settings` for a later theming phase and are not applied to the frontend wheel yet:
+
+- Primary color
+- Secondary color
+- Accent color
+- Button color
