@@ -59,3 +59,28 @@ Supported by `[randomizer_wheel_hero]` and `[whiskey_wheel_hero]`:
 ```text
 [randomizer_wheel_hero link="/spin/" cta_text="Create your prize wheel"]
 ```
+
+## Admin settings
+
+Site-wide defaults are available in **Settings → Randomizer Wheel**.
+
+The settings page stores defaults for the full wheel and hero wheel in one option array named `rwp_settings`. Shortcode attributes always take priority over saved admin defaults, and saved admin defaults take priority over the bundled generic defaults.
+
+### Full wheel defaults
+
+- Default title
+- Default placeholder text
+- Default logo URL
+- Default logo alt text
+- Show presentation mode by default
+- Show remove winner by default
+- Default minimum items
+
+### Hero wheel defaults
+
+- Default hero title
+- Default hero items
+- Default hero link
+- Default hero CTA text
+- Default hero logo URL
+- Default hero logo alt text
