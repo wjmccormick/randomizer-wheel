@@ -27,6 +27,83 @@
     }
 
     /**
+    * Built-in canvas slice palettes.
+    */
+    var wheelPalettes = {
+        classic: [
+            '#8b5a2b',
+            '#c28a2c',
+            '#2f2f2f',
+            '#d7b377',
+            '#5c4033',
+            '#f3e1b6',
+            '#9c6a2f',
+            '#3a3a3a',
+            '#b8860b',
+            '#6b4423'
+        ],
+        bourbon: [
+            '#4a2511',
+            '#7a3f17',
+            '#a95f1e',
+            '#c98b3a',
+            '#e4b35d',
+            '#5f3215',
+            '#8f4b1a',
+            '#2c1a12',
+            '#d6a04a',
+            '#6f4525'
+        ],
+        bright: [
+            '#ef476f',
+            '#ffd166',
+            '#06d6a0',
+            '#118ab2',
+            '#8338ec',
+            '#ff9f1c',
+            '#2ec4b6',
+            '#e71d36',
+            '#3a86ff',
+            '#fb5607'
+        ],
+        muted: [
+            '#6d6875',
+            '#b5838d',
+            '#e5989b',
+            '#ffb4a2',
+            '#9a8c98',
+            '#c9ada7',
+            '#4a4e69',
+            '#8d99ae',
+            '#a5a58d',
+            '#b7b7a4'
+        ],
+        monochrome: [
+            '#111111',
+            '#2a2a2a',
+            '#444444',
+            '#5e5e5e',
+            '#777777',
+            '#919191',
+            '#ababab',
+            '#c5c5c5',
+            '#dfdfdf',
+            '#f3f3f3'
+        ]
+    };
+
+    /**
+    * Read and validate the resolved shortcode/admin wheel palette slug.
+    */
+    function getWheelPalette(wrapper) {
+        var palette = (wrapper.dataset.wheelPalette || 'classic').toLowerCase();
+
+        return Object.prototype.hasOwnProperty.call(wheelPalettes, palette)
+            ? palette
+            : 'classic';
+    }
+
+    /**
     * Draw the wheel onto a canvas.
     *
     * Handles:
@@ -36,7 +113,7 @@
     * - Dense-wheel label suppression
     * - Center hub background
     */
-    function drawWheel(canvas, items) {
+    function drawWheel(canvas, items, palette) {
         var ctx = canvas.getContext('2d');
         var width = canvas.width;
         var height = canvas.height;
@@ -73,18 +150,7 @@
             fontSize = 9;
         }
 
-        var colors = [
-            '#8b5a2b',
-            '#c28a2c',
-            '#2f2f2f',
-            '#d7b377',
-            '#5c4033',
-            '#f3e1b6',
-            '#9c6a2f',
-            '#3a3a3a',
-            '#b8860b',
-            '#6b4423'
-        ];
+        var colors = wheelPalettes[palette] || wheelPalettes.classic;
 
         var hubRadius = radius * 0.18;
 
@@ -253,6 +319,7 @@
         var currentRotation = 0;
         var isSpinning = false;
         var items = [];
+        var wheelPalette = getWheelPalette(wrapper);
 
         /**
         * Rebuild the wheel from the textarea and reset winner state.
@@ -276,7 +343,7 @@
             currentRotation = 0;
             canvas.style.transform = 'rotate(0deg)';
 
-            drawWheel(canvas, items);
+            drawWheel(canvas, items, wheelPalette);
 
             result.textContent = items.length ? 'Click the wheel to spin or click the Spin button.' : 'Add items, then spin.';
         }
@@ -298,7 +365,7 @@
             presentationCanvas.style.transition = 'none';
             presentationCanvas.style.transform = 'rotate(0deg)';
 
-            drawWheel(presentationCanvas, items);
+            drawWheel(presentationCanvas, items, wheelPalette);
 
             presentationResult.textContent = 'Spinning...';
 
@@ -385,7 +452,7 @@
 
             if (items.length < minItems) {
                 result.textContent = 'Add at least ' + minItems + ' items before spinning.';
-                drawWheel(canvas, items);
+                drawWheel(canvas, items, wheelPalette);
                 return;
             }
 
@@ -397,7 +464,7 @@
             isSpinning = true;
             wrapper.classList.add('srw-is-spinning');
 
-            drawWheel(canvas, items);
+            drawWheel(canvas, items, wheelPalette);
 
             var winnerIndex = secureRandomIndex(items.length);
             var sliceDegrees = 360 / items.length;
@@ -462,7 +529,7 @@
                 currentRotation = 0;
                 canvas.style.transform = 'rotate(0deg)';
 
-                drawWheel(canvas, items);
+                drawWheel(canvas, items, wheelPalette);
 
                 result.textContent = items.length
                     ? 'Winner removed.'
@@ -532,7 +599,7 @@
                     presentationCanvas.style.transition = 'none';
                     presentationCanvas.style.transform = 'rotate(0deg)';
 
-                    drawWheel(presentationCanvas, items);
+                    drawWheel(presentationCanvas, items, wheelPalette);
 
                     presentationResult.textContent = items.length
                         ? 'Winner removed. Click the wheel to spin again.'
@@ -578,6 +645,7 @@
             }
             wrapper.dataset.srwHeroInitialized = 'true';
             var canvas = wrapper.querySelector('.srw-hero-canvas');
+            var wheelPalette = getWheelPalette(wrapper);
             var items = [];
 
             try {
@@ -590,7 +658,7 @@
                 return;
             }
 
-            drawWheel(canvas, items);
+            drawWheel(canvas, items, wheelPalette);
         });
     }
 
