@@ -228,12 +228,27 @@
         var presentationSpinAgainButton = wrapper.querySelector('.srw-presentation-spin-again');
         var presentationWheelStage = wrapper.querySelector('.srw-presentation-wheel-stage');
 
+        var hasPresentation = wrapper.dataset.showPresentation !== 'false' &&
+            presentationCanvas &&
+            presentationResult &&
+            presentationToggle &&
+            presentationMode &&
+            presentationModeClose &&
+            presentationSpinAgainButton &&
+            presentationWheelStage;
+
         var winnerModal = wrapper.querySelector('.srw-winner-modal');
         var winnerName = wrapper.querySelector('.srw-winner-name');
         var winnerClose = wrapper.querySelector('.srw-winner-close');
         var winnerRemoveButton = wrapper.querySelector('.srw-winner-remove');
         var winnerSpinAgainButton = wrapper.querySelector('.srw-winner-spin-again');
+        var hasRemoveWinner = wrapper.dataset.showRemoveWinner !== 'false' && removeButton && winnerRemoveButton;
+        var minItems = parseInt(wrapper.dataset.minItems, 10);
         var currentWinner = null;
+
+        if (!minItems || minItems < 1) {
+            minItems = 2;
+        }
 
         var currentRotation = 0;
         var isSpinning = false;
@@ -252,7 +267,10 @@
                 : '';
 
             currentWinner = null;
-            removeButton.disabled = true;
+
+            if (removeButton) {
+                removeButton.disabled = true;
+            }
 
             canvas.style.transition = 'none';
             currentRotation = 0;
@@ -267,9 +285,10 @@
         * Open presentation mode and perform a spin inside the modal view.
         */
         function openPresentationMode() {
-            if (isSpinning) {
+            if (!hasPresentation || isSpinning) {
                 return;
             }
+
             isSpinning = true;
             wrapper.classList.add('srw-is-spinning');
 
@@ -307,7 +326,9 @@
 
                     result.textContent = 'WINNER: ' + currentWinner;
 
-                    removeButton.disabled = false;
+                    if (removeButton) {
+                        removeButton.disabled = false;
+                    }
 
                     // Show consistent winner popup after presentation spin
                     openWinnerModal(currentWinner);
@@ -362,13 +383,13 @@
 
             items = parseItems(textarea);
 
-            if (items.length < 2) {
-                result.textContent = 'Add at least 2 items before spinning.';
+            if (items.length < minItems) {
+                result.textContent = 'Add at least ' + minItems + ' items before spinning.';
                 drawWheel(canvas, items);
                 return;
             }
 
-            if (presentationToggle.checked) {
+            if (hasPresentation && presentationToggle.checked) {
                 openPresentationMode();
                 return;
             }
@@ -402,7 +423,11 @@
                 isSpinning = false;
                 currentWinner = items[winnerIndex];
                 result.textContent = 'WINNER: ' + currentWinner;
-                removeButton.disabled = false;
+
+                if (removeButton) {
+                    removeButton.disabled = false;
+                }
+
                 openWinnerModal(currentWinner);
             }, 4100);
         });
@@ -410,66 +435,72 @@
             spinButton.click();
         });
 
-        presentationWheelStage.addEventListener('click', function () {
-            if (presentationToggle.checked && !presentationMode.hidden && items.length >= 2) {
-                openPresentationMode();
-            }
-        });
+        if (hasPresentation) {
+            presentationWheelStage.addEventListener('click', function () {
+                if (presentationToggle.checked && !presentationMode.hidden && items.length >= minItems) {
+                    openPresentationMode();
+                }
+            });
+        }
 
-        removeButton.addEventListener('click', function () {
-            if (!currentWinner) {
-                return;
-            }
+        if (removeButton) {
+            removeButton.addEventListener('click', function () {
+                if (!currentWinner) {
+                    return;
+                }
 
-            items = items.filter(function (item) {
-                return item !== currentWinner;
+                items = items.filter(function (item) {
+                    return item !== currentWinner;
+                });
+
+                textarea.value = items.join('\n');
+
+                currentWinner = null;
+                removeButton.disabled = true;
+
+                canvas.style.transition = 'none';
+                currentRotation = 0;
+                canvas.style.transform = 'rotate(0deg)';
+
+                drawWheel(canvas, items);
+
+                result.textContent = items.length
+                    ? 'Winner removed.'
+                    : 'No items remaining.';
+            });
+        }
+
+        if (hasPresentation) {
+            presentationModeClose.addEventListener('click', closePresentationMode);
+
+            presentationModeClose.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    closePresentationMode();
+                }
             });
 
-            textarea.value = items.join('\n');
+            presentationMode.addEventListener('click', function (event) {
+                if (event.target === presentationMode) {
+                    closePresentationMode();
+                }
+            });
 
-            currentWinner = null;
-            removeButton.disabled = true;
+            presentationSpinAgainButton.addEventListener('click', function () {
+                if (items.length < minItems) {
+                    presentationResult.textContent = 'Add at least ' + minItems + ' items before spinning.';
+                    return;
+                }
 
-            canvas.style.transition = 'none';
-            currentRotation = 0;
-            canvas.style.transform = 'rotate(0deg)';
+                openPresentationMode();
+            });
 
-            drawWheel(canvas, items);
-
-            result.textContent = items.length
-                ? 'Winner removed.'
-                : 'No items remaining.';
-        });
-
-        presentationModeClose.addEventListener('click', closePresentationMode);
-
-        presentationModeClose.addEventListener('keydown', function (event) {
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                closePresentationMode();
-            }
-        });
-
-        presentationMode.addEventListener('click', function (event) {
-            if (event.target === presentationMode) {
-                closePresentationMode();
-            }
-        });
-
-        presentationSpinAgainButton.addEventListener('click', function () {
-            if (items.length < 2) {
-                presentationResult.textContent = 'Add at least 2 items before spinning.';
-                return;
-            }
-
-            openPresentationMode();
-        });
-
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape' && !presentationMode.hidden) {
-                closePresentationMode();
-            }
-        });
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && !presentationMode.hidden) {
+                    closePresentationMode();
+                }
+            });
+        }
 
         winnerClose.addEventListener('click', closeWinnerModal);
 
@@ -492,28 +523,30 @@
             }
         });
 
-        winnerRemoveButton.addEventListener('click', function () {
-            closeWinnerModal();
-            removeButton.click();
+        if (hasRemoveWinner) {
+            winnerRemoveButton.addEventListener('click', function () {
+                closeWinnerModal();
+                removeButton.click();
 
-            if (presentationToggle.checked && !presentationMode.hidden) {
-                presentationCanvas.style.transition = 'none';
-                presentationCanvas.style.transform = 'rotate(0deg)';
+                if (hasPresentation && presentationToggle.checked && !presentationMode.hidden) {
+                    presentationCanvas.style.transition = 'none';
+                    presentationCanvas.style.transform = 'rotate(0deg)';
 
-                drawWheel(presentationCanvas, items);
+                    drawWheel(presentationCanvas, items);
 
-                presentationResult.textContent = items.length
-                    ? 'Winner removed. Click the wheel to spin again.'
-                    : 'No items remaining.';
+                    presentationResult.textContent = items.length
+                        ? 'Winner removed. Click the wheel to spin again.'
+                        : 'No items remaining.';
 
-                presentationSpinAgainButton.hidden = items.length < 2;
-            }
-        });
+                    presentationSpinAgainButton.hidden = items.length < minItems;
+                }
+            });
+        }
 
         winnerSpinAgainButton.addEventListener('click', function () {
             closeWinnerModal();
 
-            if (presentationToggle.checked) {
+            if (hasPresentation && presentationToggle.checked) {
                 openPresentationMode();
             } else {
                 spinButton.click();
