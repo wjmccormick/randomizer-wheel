@@ -48,6 +48,10 @@ class RWP_Shortcodes {
             'show_presentation' => null,
             'show_remove_winner' => null,
             'min_items' => null,
+            'primary_color' => null,
+            'secondary_color' => null,
+            'accent_color' => null,
+            'button_color' => null,
         ], $atts, 'randomizer_wheel');
 
         $title = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'title', $settings, 'full_title'));
@@ -77,6 +81,8 @@ class RWP_Shortcodes {
         $logo_url_black = $custom_logo_url ? $custom_logo_url : $default_logo_url_black;
         $logo_url_white = $custom_logo_url ? $custom_logo_url : $default_logo_url_white;
         $presentation_title = $title ? $title : 'Randomizer Wheel';
+        $theme_colors = self::resolve_theme_colors($raw_atts, $atts, $settings);
+        $theme_style = self::theme_style_attribute($theme_colors);
 
         $wheel_id = 'srw-wheel-' . wp_rand(1000, 999999);
         $winner_title_id = $wheel_id . '-winner-title';
@@ -108,6 +114,10 @@ class RWP_Shortcodes {
             'cta_text' => null,
             'logo' => null,
             'logo_alt' => null,
+            'primary_color' => null,
+            'secondary_color' => null,
+            'accent_color' => null,
+            'button_color' => null,
         ], $atts, 'randomizer_wheel_hero');
 
         $title = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'title', $settings, 'hero_title'));
@@ -143,11 +153,73 @@ class RWP_Shortcodes {
         }
 
         $hero_title = $title ? $title : $cta_text;
+        $theme_colors = self::resolve_theme_colors($raw_atts, $atts, $settings);
+        $theme_style = self::theme_style_attribute($theme_colors);
         $wheel_id = 'srw-hero-' . wp_rand(1000, 999999);
 
         ob_start();
         require RWP_PLUGIN_DIR . 'public/templates/hero.php';
         return ob_get_clean();
+    }
+
+
+    /**
+     * Resolve theme colors using shortcode attribute, saved setting, bundled default order.
+     *
+     * @param array $raw_atts Raw shortcode attributes.
+     * @param array $atts Normalized shortcode attributes.
+     * @param array $settings Saved settings.
+     * @return array
+     */
+    private static function resolve_theme_colors($raw_atts, $atts, $settings) {
+        $defaults = RWP_Settings::defaults();
+        $color_keys = [
+            'primary_color',
+            'secondary_color',
+            'accent_color',
+            'button_color',
+        ];
+        $colors = [];
+
+        foreach ($color_keys as $key) {
+            if (array_key_exists($key, $raw_atts)) {
+                $colors[$key] = self::sanitize_hex_color_value($atts[$key], $settings[$key] ?? $defaults[$key]);
+                continue;
+            }
+
+            $colors[$key] = self::sanitize_hex_color_value($settings[$key] ?? $defaults[$key], $defaults[$key]);
+        }
+
+        return $colors;
+    }
+
+    /**
+     * Build an escaped CSS custom property declaration string for one shortcode instance.
+     *
+     * @param array $theme_colors Resolved theme colors.
+     * @return string
+     */
+    private static function theme_style_attribute($theme_colors) {
+        return sprintf(
+            '--rwp-primary-color:%1$s;--rwp-secondary-color:%2$s;--rwp-accent-color:%3$s;--rwp-button-color:%4$s;',
+            esc_attr($theme_colors['primary_color']),
+            esc_attr($theme_colors['secondary_color']),
+            esc_attr($theme_colors['accent_color']),
+            esc_attr($theme_colors['button_color'])
+        );
+    }
+
+    /**
+     * Sanitize a hex color value with a fallback.
+     *
+     * @param mixed  $value Raw value.
+     * @param string $fallback Fallback color.
+     * @return string
+     */
+    private static function sanitize_hex_color_value($value, $fallback) {
+        $color = sanitize_hex_color((string) $value);
+
+        return $color ? $color : $fallback;
     }
 
     /**

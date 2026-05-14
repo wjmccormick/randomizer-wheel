@@ -171,7 +171,7 @@ class RWP_Settings {
 
         add_settings_section(
             'rwp_branding_section',
-            'Branding & Future Theme Defaults',
+            'Branding & Theme Defaults',
             [__CLASS__, 'render_branding_section'],
             self::PAGE_SLUG
         );
@@ -191,10 +191,10 @@ class RWP_Settings {
         self::add_field('hero_logo', 'Default hero logo URL', 'media', 'rwp_hero_wheel_section', 'Choose or paste the default hero logo URL.');
         self::add_field('hero_logo_alt', 'Default hero logo alt text', 'text', 'rwp_hero_wheel_section', 'Accessible alt text for the hero logo.');
 
-        self::add_field('primary_color', 'Primary color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
-        self::add_field('secondary_color', 'Secondary color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
-        self::add_field('accent_color', 'Accent color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
-        self::add_field('button_color', 'Button color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
+        self::add_field('primary_color', 'Primary color', 'color', 'rwp_branding_section', 'Used as the frontend theme default unless a shortcode overrides it.');
+        self::add_field('secondary_color', 'Secondary color', 'color', 'rwp_branding_section', 'Used as the frontend theme default unless a shortcode overrides it.');
+        self::add_field('accent_color', 'Accent color', 'color', 'rwp_branding_section', 'Used as the frontend theme default unless a shortcode overrides it.');
+        self::add_field('button_color', 'Button color', 'color', 'rwp_branding_section', 'Used as the frontend theme default unless a shortcode overrides it.');
     }
 
     /**
@@ -264,7 +264,7 @@ class RWP_Settings {
      * Render branding section description.
      */
     public static function render_branding_section() {
-        echo '<p>' . esc_html('These color values are saved for a later theming phase and are not applied to the frontend wheel yet.') . '</p>';
+        echo '<p>' . esc_html('These color values theme frontend wheel instances by default. Shortcode color attributes override these settings for one rendered wheel.') . '</p>';
     }
 
     /**

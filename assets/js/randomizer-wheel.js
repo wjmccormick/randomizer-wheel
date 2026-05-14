@@ -27,6 +27,128 @@
     }
 
     /**
+    * Read the resolved shortcode/admin theme colors from CSS custom properties.
+    */
+    function getThemeColors(wrapper) {
+        var style = window.getComputedStyle(wrapper);
+        var defaults = {
+            primaryColor: '#8b5a2b',
+            secondaryColor: '#c28a2c',
+            accentColor: '#b8860b',
+            buttonColor: '#222222'
+        };
+
+        return {
+            primaryColor: style.getPropertyValue('--rwp-primary-color').trim() || defaults.primaryColor,
+            secondaryColor: style.getPropertyValue('--rwp-secondary-color').trim() || defaults.secondaryColor,
+            accentColor: style.getPropertyValue('--rwp-accent-color').trim() || defaults.accentColor,
+            buttonColor: style.getPropertyValue('--rwp-button-color').trim() || defaults.buttonColor
+        };
+    }
+
+    /**
+    * Build a slice palette while preserving the original bundled palette for defaults.
+    */
+    function getSliceColors(theme) {
+        var defaultTheme = theme.primaryColor.toLowerCase() === '#8b5a2b' &&
+            theme.secondaryColor.toLowerCase() === '#c28a2c' &&
+            theme.accentColor.toLowerCase() === '#b8860b' &&
+            theme.buttonColor.toLowerCase() === '#222222';
+
+        if (defaultTheme) {
+            return [
+                '#8b5a2b',
+                '#c28a2c',
+                '#2f2f2f',
+                '#d7b377',
+                '#5c4033',
+                '#f3e1b6',
+                '#9c6a2f',
+                '#3a3a3a',
+                '#b8860b',
+                '#6b4423'
+            ];
+        }
+
+        return [
+            theme.primaryColor,
+            theme.secondaryColor,
+            theme.buttonColor,
+            theme.accentColor,
+            mixWithWhite(theme.primaryColor, 0.35),
+            mixWithWhite(theme.secondaryColor, 0.45),
+            mixWithBlack(theme.primaryColor, 0.25),
+            mixWithBlack(theme.secondaryColor, 0.25),
+            mixWithWhite(theme.accentColor, 0.35),
+            mixWithBlack(theme.buttonColor, 0.15)
+        ];
+    }
+
+    /**
+    * Mix a hex color with white.
+    */
+    function mixWithWhite(color, weight) {
+        return mixColor(color, '#ffffff', weight);
+    }
+
+    /**
+    * Mix a hex color with black.
+    */
+    function mixWithBlack(color, weight) {
+        return mixColor(color, '#000000', weight);
+    }
+
+    /**
+    * Mix two hex colors using a simple weighted average.
+    */
+    function mixColor(color, mix, weight) {
+        var base = parseHexColor(color);
+        var overlay = parseHexColor(mix);
+
+        if (!base || !overlay) {
+            return color;
+        }
+
+        var red = Math.round(base.r * (1 - weight) + overlay.r * weight);
+        var green = Math.round(base.g * (1 - weight) + overlay.g * weight);
+        var blue = Math.round(base.b * (1 - weight) + overlay.b * weight);
+
+        return rgbToHex(red, green, blue);
+    }
+
+    /**
+    * Convert a hex color into RGB parts.
+    */
+    function parseHexColor(color) {
+        var value = String(color || '').replace('#', '').trim();
+
+        if (value.length === 3) {
+            value = value.split('').map(function (part) {
+                return part + part;
+            }).join('');
+        }
+
+        if (!/^[0-9a-fA-F]{6}$/.test(value)) {
+            return null;
+        }
+
+        return {
+            r: parseInt(value.slice(0, 2), 16),
+            g: parseInt(value.slice(2, 4), 16),
+            b: parseInt(value.slice(4, 6), 16)
+        };
+    }
+
+    /**
+    * Convert RGB parts into a hex color.
+    */
+    function rgbToHex(red, green, blue) {
+        return '#' + [red, green, blue].map(function (part) {
+            return part.toString(16).padStart(2, '0');
+        }).join('');
+    }
+
+    /**
     * Draw the wheel onto a canvas.
     *
     * Handles:
@@ -36,7 +158,7 @@
     * - Dense-wheel label suppression
     * - Center hub background
     */
-    function drawWheel(canvas, items) {
+    function drawWheel(canvas, items, theme) {
         var ctx = canvas.getContext('2d');
         var width = canvas.width;
         var height = canvas.height;
@@ -73,18 +195,12 @@
             fontSize = 9;
         }
 
-        var colors = [
-            '#8b5a2b',
-            '#c28a2c',
-            '#2f2f2f',
-            '#d7b377',
-            '#5c4033',
-            '#f3e1b6',
-            '#9c6a2f',
-            '#3a3a3a',
-            '#b8860b',
-            '#6b4423'
-        ];
+        var colors = getSliceColors(theme || {
+            primaryColor: '#8b5a2b',
+            secondaryColor: '#c28a2c',
+            accentColor: '#b8860b',
+            buttonColor: '#222222'
+        });
 
         var hubRadius = radius * 0.18;
 
@@ -253,6 +369,7 @@
         var currentRotation = 0;
         var isSpinning = false;
         var items = [];
+        var theme = getThemeColors(wrapper);
 
         /**
         * Rebuild the wheel from the textarea and reset winner state.
@@ -276,7 +393,7 @@
             currentRotation = 0;
             canvas.style.transform = 'rotate(0deg)';
 
-            drawWheel(canvas, items);
+            drawWheel(canvas, items, theme);
 
             result.textContent = items.length ? 'Click the wheel to spin or click the Spin button.' : 'Add items, then spin.';
         }
@@ -298,7 +415,7 @@
             presentationCanvas.style.transition = 'none';
             presentationCanvas.style.transform = 'rotate(0deg)';
 
-            drawWheel(presentationCanvas, items);
+            drawWheel(presentationCanvas, items, theme);
 
             presentationResult.textContent = 'Spinning...';
 
@@ -385,7 +502,7 @@
 
             if (items.length < minItems) {
                 result.textContent = 'Add at least ' + minItems + ' items before spinning.';
-                drawWheel(canvas, items);
+                drawWheel(canvas, items, theme);
                 return;
             }
 
@@ -397,7 +514,7 @@
             isSpinning = true;
             wrapper.classList.add('srw-is-spinning');
 
-            drawWheel(canvas, items);
+            drawWheel(canvas, items, theme);
 
             var winnerIndex = secureRandomIndex(items.length);
             var sliceDegrees = 360 / items.length;
@@ -462,7 +579,7 @@
                 currentRotation = 0;
                 canvas.style.transform = 'rotate(0deg)';
 
-                drawWheel(canvas, items);
+                drawWheel(canvas, items, theme);
 
                 result.textContent = items.length
                     ? 'Winner removed.'
@@ -532,7 +649,7 @@
                     presentationCanvas.style.transition = 'none';
                     presentationCanvas.style.transform = 'rotate(0deg)';
 
-                    drawWheel(presentationCanvas, items);
+                    drawWheel(presentationCanvas, items, theme);
 
                     presentationResult.textContent = items.length
                         ? 'Winner removed. Click the wheel to spin again.'
@@ -578,6 +695,7 @@
             }
             wrapper.dataset.srwHeroInitialized = 'true';
             var canvas = wrapper.querySelector('.srw-hero-canvas');
+            var theme = getThemeColors(wrapper);
             var items = [];
 
             try {
@@ -590,7 +708,7 @@
                 return;
             }
 
-            drawWheel(canvas, items);
+            drawWheel(canvas, items, theme);
         });
     }
 

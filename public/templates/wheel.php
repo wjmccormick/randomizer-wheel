@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
     <div
         id="<?php echo esc_attr($wheel_id); ?>"
         class="srw-wrapper"
+        style="<?php echo esc_attr($theme_style); ?>"
         data-logo-url="<?php echo esc_url($logo_url_black); ?>"
         data-min-items="<?php echo esc_attr($min_items); ?>"
         data-show-presentation="<?php echo esc_attr($show_presentation ? 'true' : 'false'); ?>"

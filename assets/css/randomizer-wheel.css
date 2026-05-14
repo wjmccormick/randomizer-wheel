@@ -18,6 +18,17 @@
     align-items: center;
     overflow-x: hidden;
     font-family: inherit;
+    --rwp-primary-color: #8b5a2b;
+    --rwp-secondary-color: #c28a2c;
+    --rwp-accent-color: #b8860b;
+    --rwp-button-color: #222222;
+}
+
+.srw-hero-wrapper {
+    --rwp-primary-color: #8b5a2b;
+    --rwp-secondary-color: #c28a2c;
+    --rwp-accent-color: #b8860b;
+    --rwp-button-color: #222222;
 }
 
 .srw-is-spinning .srw-canvas,
@@ -85,7 +96,7 @@
     padding: 0.7rem 1rem;
     cursor: pointer;
     font-weight: 700;
-    background: #222;
+    background: var(--rwp-button-color, #222222);
     color: #fff;
 }
 
@@ -158,7 +169,7 @@
     height: 0;
     border-left: 16px solid transparent;
     border-right: 16px solid transparent;
-    border-top: 32px solid var(--ast-global-color-0);
+    border-top: 32px solid var(--rwp-accent-color, #b8860b);
     transform: translateX(-50%);
     z-index: 10;
     filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35));
@@ -198,7 +209,7 @@
     display: grid;
     grid-template-columns: 58px 1fr 58px;
     align-items: center;
-    background: #202a36;
+    background: var(--rwp-button-color, #222222);
     color: #fff;
     font-weight: 700;
     text-align: center;
@@ -262,7 +273,7 @@
     height: 0;
     border-left: 22px solid transparent;
     border-right: 22px solid transparent;
-    border-top: 42px solid var(--ast-global-color-0);
+    border-top: 42px solid var(--rwp-accent-color, #b8860b);
     transform: translateX(-50%);
     z-index: 10;
     filter:
@@ -280,7 +291,7 @@
     justify-self: end;
     border: 0;
     border-radius: 50%;
-    background: var(--ast-global-color-0);
+    background: var(--rwp-accent-color, #b8860b);
     color: #fff;
     font-size: 28px;
     line-height: 1;
@@ -331,7 +342,7 @@
     font-size: 0.95rem;
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--ast-global-color-0);
+    color: var(--rwp-accent-color, #b8860b);
     font-weight: 800;
     margin-bottom: 0.25rem;
 }
@@ -380,7 +391,7 @@
     font-weight: 800;
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--ast-global-color-0);
+    color: var(--rwp-accent-color, #b8860b);
 }
 
 .srw-winner-title {
@@ -425,7 +436,7 @@
     display: grid;
     place-items: center;
     border-radius: 50%;
-    background: var(--ast-global-color-0);
+    background: var(--rwp-accent-color, #b8860b);
     color: #fff;
     font-size: 28px;
     line-height: 1;
@@ -446,7 +457,7 @@
 .srw-winner-close:focus-visible {
     background: #222;
     color: #fff;
-    outline: 2px solid var(--ast-global-color-0);
+    outline: 2px solid var(--rwp-accent-color, #b8860b);
     outline-offset: 3px;
 }
 
@@ -461,7 +472,7 @@
     width: 100%;
     height: 420px;
     overflow: hidden;
-    background: #111822;
+    background: var(--rwp-button-color, #111822);
     border-radius: 18px;
 }
 
@@ -499,7 +510,7 @@
     height: 0;
     border-left: 26px solid transparent;
     border-right: 26px solid transparent;
-    border-top: 52px solid var(--ast-global-color-0);
+    border-top: 52px solid var(--rwp-accent-color, #b8860b);
     z-index: 20;
 }
 
