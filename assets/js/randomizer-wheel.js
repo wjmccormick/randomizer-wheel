@@ -27,6 +27,95 @@
     }
 
     /**
+    * Built-in canvas slice palettes.
+    */
+    var wheelPalettes = {
+        classic: [
+            '#8b5a2b',
+            '#c28a2c',
+            '#2f2f2f',
+            '#d7b377',
+            '#5c4033',
+            '#f3e1b6',
+            '#9c6a2f',
+            '#3a3a3a',
+            '#b8860b',
+            '#6b4423'
+        ],
+        bourbon: [
+            '#4a2511',
+            '#7a3f17',
+            '#a95f1e',
+            '#c98b3a',
+            '#e4b35d',
+            '#5f3215',
+            '#8f4b1a',
+            '#2c1a12',
+            '#d6a04a',
+            '#6f4525'
+        ],
+        bright: [
+            '#ef476f',
+            '#ffd166',
+            '#06d6a0',
+            '#118ab2',
+            '#8338ec',
+            '#ff9f1c',
+            '#2ec4b6',
+            '#e71d36',
+            '#3a86ff',
+            '#fb5607'
+        ],
+        muted: [
+            '#6d6875',
+            '#b5838d',
+            '#e5989b',
+            '#ffb4a2',
+            '#9a8c98',
+            '#c9ada7',
+            '#4a4e69',
+            '#8d99ae',
+            '#a5a58d',
+            '#b7b7a4'
+        ],
+        monochrome: [
+            '#111111',
+            '#2a2a2a',
+            '#444444',
+            '#5e5e5e',
+            '#777777',
+            '#919191',
+            '#ababab',
+            '#c5c5c5',
+            '#dfdfdf',
+            '#f3f3f3'
+        ]
+    };
+
+    /**
+    * Read and validate the resolved shortcode/admin wheel palette slug.
+    */
+    function getWheelPalette(wrapper) {
+        var palette = wrapper
+            ? String(wrapper.getAttribute('data-wheel-palette') || 'classic').trim().toLowerCase()
+            : 'classic';
+
+        return Object.prototype.hasOwnProperty.call(wheelPalettes, palette)
+            ? palette
+            : 'classic';
+    }
+
+    /**
+    * Resolve the palette colors for a canvas from its owning wheel wrapper.
+    */
+    function getCanvasPaletteColors(canvas) {
+        var wrapper = canvas.closest('.srw-wrapper, .srw-hero-wrapper');
+        var palette = getWheelPalette(wrapper);
+
+        return wheelPalettes[palette] || wheelPalettes.classic;
+    }
+
+    /**
     * Draw the wheel onto a canvas.
     *
     * Handles:
@@ -73,18 +162,7 @@
             fontSize = 9;
         }
 
-        var colors = [
-            '#8b5a2b',
-            '#c28a2c',
-            '#2f2f2f',
-            '#d7b377',
-            '#5c4033',
-            '#f3e1b6',
-            '#9c6a2f',
-            '#3a3a3a',
-            '#b8860b',
-            '#6b4423'
-        ];
+        var colors = getCanvasPaletteColors(canvas);
 
         var hubRadius = radius * 0.18;
 
