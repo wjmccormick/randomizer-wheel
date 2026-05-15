@@ -29,3 +29,142 @@
 .rwp-media-field .rwp-media-url {
     flex: 1 1 auto;
 }
+
+.rwp-docs-wrap {
+    max-width: 1180px;
+}
+
+.rwp-docs-wrap .description {
+    max-width: 760px;
+}
+
+.rwp-docs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.rwp-docs-card {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+.rwp-docs-card h2 {
+    margin-top: 0;
+}
+
+.rwp-docs-table code,
+.rwp-shortcode-example code,
+.rwp-palette-preview code {
+    font-size: 13px;
+}
+
+.rwp-shortcode-examples {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.rwp-shortcode-example {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+.rwp-palette-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.rwp-palette-preview {
+    padding: 0.75rem;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+.rwp-palette-preview h3 {
+    margin: 0 0 0.6rem;
+}
+
+.rwp-palette-swatches {
+    display: flex;
+    overflow: hidden;
+    min-height: 34px;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.16);
+    border-radius: 999px;
+}
+
+.rwp-palette-swatch {
+    flex: 1 1 0;
+    min-width: 20px;
+}
+
+.rwp-docs-list {
+    list-style: disc;
+    margin-left: 1.25rem;
+}
+
+.rwp-advanced-examples {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 0.75rem;
+}
+
+.rwp-advanced-example {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem;
+    background: #f6f7f7;
+    border: 1px solid #dcdcde;
+    border-radius: 4px;
+}
+
+.rwp-advanced-example h3 {
+    margin: 0 0 0.35rem;
+    font-size: 14px;
+}
+
+.rwp-advanced-example p {
+    margin: 0 0 0.65rem;
+    color: #50575e;
+}
+
+.rwp-advanced-example code {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
+.rwp-advanced-example .button {
+    align-self: flex-start;
+}
+
+.rwp-palette-hexes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin: -0.25rem 0 0.75rem;
+}
+
+.rwp-palette-hexes span {
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 0 0.25rem;
+    background: #fff;
+    border: 1px solid #dcdcde;
+    border-radius: 3px;
+}
