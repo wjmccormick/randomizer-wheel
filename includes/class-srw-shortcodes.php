@@ -12,19 +12,17 @@ if (!defined('ABSPATH')) {
  */
 class RWP_Shortcodes {
     /**
-     * Register preferred and legacy shortcodes.
+     * Register public shortcodes.
      */
     public static function register() {
-        add_shortcode('randomizer_wheel', [__CLASS__, 'render_randomized_wheel']);
-        add_shortcode('randomized_wheel', [__CLASS__, 'render_randomized_wheel']);
+        add_shortcode('randomizer_wheel', [__CLASS__, 'render_randomizer_wheel']);
         add_shortcode('randomizer_wheel_hero', [__CLASS__, 'render_wheel_hero']);
-        add_shortcode('whiskey_wheel_hero', [__CLASS__, 'render_wheel_hero']);
     }
 
     /**
-     * Render the full interactive randomized wheel.
+     * Render the full interactive Randomizer Wheel.
      *
-     * Shortcodes: [randomizer_wheel], [randomized_wheel]
+     * Shortcode: [randomizer_wheel]
      *
      * Includes:
      * - User textarea input
@@ -35,7 +33,7 @@ class RWP_Shortcodes {
      *
      * @param array $atts Shortcode attributes.
      */
-    public static function render_randomized_wheel($atts = []) {
+    public static function render_randomizer_wheel($atts = []) {
         rwp_enqueue_assets();
 
         $settings = RWP_Settings::get_settings();
@@ -48,6 +46,8 @@ class RWP_Shortcodes {
             'show_presentation' => null,
             'show_remove_winner' => null,
             'min_items' => null,
+            'accent_color' => null,
+            'wheel_palette' => null,
         ], $atts, 'randomizer_wheel');
 
         $title = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'title', $settings, 'full_title'));
@@ -77,6 +77,9 @@ class RWP_Shortcodes {
         $logo_url_black = $custom_logo_url ? $custom_logo_url : $default_logo_url_black;
         $logo_url_white = $custom_logo_url ? $custom_logo_url : $default_logo_url_white;
         $presentation_title = $title ? $title : 'Randomizer Wheel';
+        $accent_color = self::resolve_accent_color($raw_atts, $atts, $settings);
+        $theme_style = self::theme_style_attribute($accent_color);
+        $wheel_palette = self::resolve_wheel_palette($raw_atts, $atts, $settings);
 
         $wheel_id = 'srw-wheel-' . wp_rand(1000, 999999);
         $winner_title_id = $wheel_id . '-winner-title';
@@ -91,7 +94,6 @@ class RWP_Shortcodes {
      *
      * Shortcode: [randomizer_wheel_hero link="/randomizer-wheel/"]
      *
-     * The legacy [whiskey_wheel_hero] shortcode remains registered as a backward-compatible alias.
      * This is decorative/marketing-focused and links users to the full wheel page.
      *
      * @param array $atts Shortcode attributes.
@@ -108,6 +110,8 @@ class RWP_Shortcodes {
             'cta_text' => null,
             'logo' => null,
             'logo_alt' => null,
+            'accent_color' => null,
+            'wheel_palette' => null,
         ], $atts, 'randomizer_wheel_hero');
 
         $title = self::sanitize_text(self::attribute_or_setting($raw_atts, $atts, 'title', $settings, 'hero_title'));
@@ -143,11 +147,79 @@ class RWP_Shortcodes {
         }
 
         $hero_title = $title ? $title : $cta_text;
+        $accent_color = self::resolve_accent_color($raw_atts, $atts, $settings);
+        $theme_style = self::theme_style_attribute($accent_color);
+        $wheel_palette = self::resolve_wheel_palette($raw_atts, $atts, $settings);
         $wheel_id = 'srw-hero-' . wp_rand(1000, 999999);
 
         ob_start();
         require RWP_PLUGIN_DIR . 'public/templates/hero.php';
         return ob_get_clean();
+    }
+
+
+    /**
+     * Resolve the accent color using shortcode attribute, saved setting, bundled default order.
+     *
+     * @param array $raw_atts Raw shortcode attributes.
+     * @param array $atts Normalized shortcode attributes.
+     * @param array $settings Saved settings.
+     * @return string
+     */
+    private static function resolve_accent_color($raw_atts, $atts, $settings) {
+        $defaults = RWP_Settings::defaults();
+        $fallback = $settings['accent_color'] ?? $defaults['accent_color'];
+
+        if (array_key_exists('accent_color', $raw_atts)) {
+            return self::sanitize_hex_color_value($atts['accent_color'], $fallback);
+        }
+
+        return self::sanitize_hex_color_value($fallback, $defaults['accent_color']);
+    }
+
+    /**
+     * Resolve the wheel palette using shortcode attribute, saved setting, bundled default order.
+     *
+     * @param array $raw_atts Raw shortcode attributes.
+     * @param array $atts Normalized shortcode attributes.
+     * @param array $settings Saved settings.
+     * @return string
+     */
+    private static function resolve_wheel_palette($raw_atts, $atts, $settings) {
+        $defaults = RWP_Settings::defaults();
+        $fallback = RWP_Settings::sanitize_palette($settings['wheel_palette'] ?? $defaults['wheel_palette'], $defaults['wheel_palette']);
+
+        if (array_key_exists('wheel_palette', $raw_atts)) {
+            return RWP_Settings::sanitize_palette($atts['wheel_palette'], $fallback);
+        }
+
+        return $fallback;
+    }
+
+    /**
+     * Build an escaped CSS custom property declaration string for one shortcode instance.
+     *
+     * @param string $accent_color Resolved accent color.
+     * @return string
+     */
+    private static function theme_style_attribute($accent_color) {
+        return sprintf(
+            '--rwp-accent-color:%1$s;',
+            esc_attr($accent_color)
+        );
+    }
+
+    /**
+     * Sanitize a hex color value with a fallback.
+     *
+     * @param mixed  $value Raw value.
+     * @param string $fallback Fallback color.
+     * @return string
+     */
+    private static function sanitize_hex_color_value($value, $fallback) {
+        $color = sanitize_hex_color((string) $value);
+
+        return $color ? $color : $fallback;
     }
 
     /**
@@ -241,14 +313,14 @@ class RWP_Shortcodes {
     }
 }
 
-if (!function_exists('rwp_render_randomized_wheel')) {
+if (!function_exists('rwp_render_randomizer_wheel')) {
     /**
      * Procedural wrapper for rendering the full wheel shortcode.
      *
      * @param array $atts Shortcode attributes.
      */
-    function rwp_render_randomized_wheel($atts = []) {
-        return RWP_Shortcodes::render_randomized_wheel($atts);
+    function rwp_render_randomizer_wheel($atts = []) {
+        return RWP_Shortcodes::render_randomizer_wheel($atts);
     }
 }
 
