@@ -8,11 +8,26 @@ if (!defined('ABSPATH')) {
 }
 
 $palette_previews = [
-    'classic' => ['#8b5a2b', '#c28a2c', '#2f2f2f', '#d7b377', '#5c4033', '#f3e1b6', '#9c6a2f', '#3a3a3a', '#b8860b', '#6b4423'],
-    'bourbon' => ['#4a2511', '#7a3f17', '#a95f1e', '#c98b3a', '#e4b35d', '#5f3215', '#8f4b1a', '#2c1a12', '#d6a04a', '#6f4525'],
-    'bright' => ['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#8338ec', '#ff9f1c', '#2ec4b6', '#e71d36', '#3a86ff', '#fb5607'],
-    'muted' => ['#6d6875', '#b5838d', '#e5989b', '#ffb4a2', '#9a8c98', '#c9ada7', '#4a4e69', '#8d99ae', '#a5a58d', '#b7b7a4'],
-    'monochrome' => ['#111111', '#2a2a2a', '#444444', '#5e5e5e', '#777777', '#919191', '#ababab', '#c5c5c5', '#dfdfdf', '#f3f3f3'],
+    'classic' => [
+        'label' => 'Classic',
+        'colors' => ['#8b5a2b', '#c28a2c', '#2f2f2f', '#d7b377', '#5c4033', '#f3e1b6', '#9c6a2f', '#3a3a3a', '#b8860b', '#6b4423'],
+    ],
+    'bourbon' => [
+        'label' => 'Bourbon',
+        'colors' => ['#4a2511', '#7a3f17', '#a95f1e', '#c98b3a', '#e4b35d', '#5f3215', '#8f4b1a', '#2c1a12', '#d6a04a', '#6f4525'],
+    ],
+    'bright' => [
+        'label' => 'Bright',
+        'colors' => ['#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#8338ec', '#ff9f1c', '#2ec4b6', '#e71d36', '#3a86ff', '#fb5607'],
+    ],
+    'muted' => [
+        'label' => 'Muted',
+        'colors' => ['#6d6875', '#b5838d', '#e5989b', '#ffb4a2', '#9a8c98', '#c9ada7', '#4a4e69', '#8d99ae', '#a5a58d', '#b7b7a4'],
+    ],
+    'monochrome' => [
+        'label' => 'Monochrome',
+        'colors' => ['#111111', '#2a2a2a', '#444444', '#5e5e5e', '#777777', '#919191', '#ababab', '#c5c5c5', '#dfdfdf', '#f3f3f3'],
+    ],
 ];
 
 $shortcode_examples = [
@@ -146,12 +161,12 @@ $shortcode_examples = [
         <h2><?php echo esc_html('Palette preview'); ?></h2>
         <p><?php echo esc_html('The wheel_palette attribute controls the canvas slice colors. These previews show the bundled palette colors.'); ?></p>
         <div class="rwp-palette-grid">
-            <?php foreach (RWP_Settings::palette_options() as $palette_slug => $palette_label) : ?>
+            <?php foreach ($palette_previews as $palette_slug => $palette_preview) : ?>
                 <div class="rwp-palette-preview">
-                    <h3><?php echo esc_html($palette_label); ?></h3>
-                    <div class="rwp-palette-swatches" aria-label="<?php echo esc_attr($palette_label . ' palette colors'); ?>">
-                        <?php foreach ($palette_previews[$palette_slug] as $color) : ?>
-                            <span class="rwp-palette-swatch" style="background-color: <?php echo esc_attr($color); ?>;" title="<?php echo esc_attr($color); ?>"></span>
+                    <h3><?php echo esc_html($palette_preview['label']); ?></h3>
+                    <div class="rwp-palette-swatches" aria-label="<?php echo esc_attr($palette_preview['label'] . ' palette colors'); ?>">
+                        <?php foreach ($palette_preview['colors'] as $color) : ?>
+                            <span class="rwp-palette-swatch" style="background-color: <?php echo esc_attr($color); ?>;" title="<?php echo esc_attr($color); ?>" aria-label="<?php echo esc_attr($color); ?>"></span>
                         <?php endforeach; ?>
                     </div>
                     <code><?php echo esc_html('[randomizer_wheel wheel_palette="' . $palette_slug . '"]'); ?></code>

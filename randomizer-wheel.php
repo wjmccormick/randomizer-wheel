@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Randomizer Wheel
  * Description: Adds Randomizer Wheel shortcodes for user-entered randomized selections.
- * Version: 1.0.2
+ * Version: 1.0.3
  * Author: Wm. James McCormick
  */
 
@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
 }
 
 if (!defined('RWP_VERSION')) {
-    define('RWP_VERSION', '1.0.2');
+    define('RWP_VERSION', '1.0.3');
 }
 
 if (!defined('RWP_PLUGIN_FILE')) {
