@@ -4,14 +4,12 @@ A customizable spin wheel WordPress plugin for random selections, giveaways, con
 
 ## Shortcodes
 
-- `[randomizer_wheel]` — preferred shortcode for the full interactive wheel.
-- `[randomized_wheel]` — backward-compatible alias for the full interactive wheel.
+- `[randomizer_wheel]` — full interactive wheel.
 - `[randomizer_wheel_hero]` — generic decorative/demo hero wheel.
-- `[whiskey_wheel_hero]` — backward-compatible alias for the hero wheel.
 
 ## Full wheel attributes
 
-Supported by `[randomizer_wheel]` and `[randomized_wheel]`:
+Supported by `[randomizer_wheel]`:
 
 | Attribute | Default | Description |
 | --- | --- | --- |
@@ -45,7 +43,7 @@ Supported by `[randomizer_wheel]` and `[randomized_wheel]`:
 
 ## Hero wheel attributes
 
-Supported by `[randomizer_wheel_hero]` and `[whiskey_wheel_hero]`:
+Supported by `[randomizer_wheel_hero]`:
 
 | Attribute | Default | Description |
 | --- | --- | --- |

@@ -12,19 +12,17 @@ if (!defined('ABSPATH')) {
  */
 class RWP_Shortcodes {
     /**
-     * Register preferred and legacy shortcodes.
+     * Register public shortcodes.
      */
     public static function register() {
-        add_shortcode('randomizer_wheel', [__CLASS__, 'render_randomized_wheel']);
-        add_shortcode('randomized_wheel', [__CLASS__, 'render_randomized_wheel']);
+        add_shortcode('randomizer_wheel', [__CLASS__, 'render_randomizer_wheel']);
         add_shortcode('randomizer_wheel_hero', [__CLASS__, 'render_wheel_hero']);
-        add_shortcode('whiskey_wheel_hero', [__CLASS__, 'render_wheel_hero']);
     }
 
     /**
-     * Render the full interactive randomized wheel.
+     * Render the full interactive Randomizer Wheel.
      *
-     * Shortcodes: [randomizer_wheel], [randomized_wheel]
+     * Shortcode: [randomizer_wheel]
      *
      * Includes:
      * - User textarea input
@@ -35,7 +33,7 @@ class RWP_Shortcodes {
      *
      * @param array $atts Shortcode attributes.
      */
-    public static function render_randomized_wheel($atts = []) {
+    public static function render_randomizer_wheel($atts = []) {
         rwp_enqueue_assets();
 
         $settings = RWP_Settings::get_settings();
@@ -96,7 +94,6 @@ class RWP_Shortcodes {
      *
      * Shortcode: [randomizer_wheel_hero link="/randomizer-wheel/"]
      *
-     * The legacy [whiskey_wheel_hero] shortcode remains registered as a backward-compatible alias.
      * This is decorative/marketing-focused and links users to the full wheel page.
      *
      * @param array $atts Shortcode attributes.
@@ -316,14 +313,14 @@ class RWP_Shortcodes {
     }
 }
 
-if (!function_exists('rwp_render_randomized_wheel')) {
+if (!function_exists('rwp_render_randomizer_wheel')) {
     /**
      * Procedural wrapper for rendering the full wheel shortcode.
      *
      * @param array $atts Shortcode attributes.
      */
-    function rwp_render_randomized_wheel($atts = []) {
-        return RWP_Shortcodes::render_randomized_wheel($atts);
+    function rwp_render_randomizer_wheel($atts = []) {
+        return RWP_Shortcodes::render_randomizer_wheel($atts);
     }
 }
 

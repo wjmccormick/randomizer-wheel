@@ -281,14 +281,14 @@ class RWP_Settings {
      * Render full wheel section description.
      */
     public static function render_full_wheel_section() {
-        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel] and [randomized_wheel]. Shortcode attributes override these values for an individual wheel.') . '</p>';
+        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel]. Shortcode attributes override these values for an individual wheel.') . '</p>';
     }
 
     /**
      * Render hero wheel section description.
      */
     public static function render_hero_wheel_section() {
-        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel_hero] and [whiskey_wheel_hero]. Shortcode attributes override these values for an individual hero wheel.') . '</p>';
+        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel_hero]. Shortcode attributes override these values for an individual hero wheel.') . '</p>';
     }
 
     /**
