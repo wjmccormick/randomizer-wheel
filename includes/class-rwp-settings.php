@@ -22,6 +22,11 @@ class RWP_Settings {
     const PAGE_SLUG = 'randomizer-wheel';
 
     /**
+     * Documentation page slug.
+     */
+    const DOCS_PAGE_SLUG = 'randomizer-wheel-documentation';
+
+    /**
      * Register admin hooks.
      */
     public static function register() {
@@ -116,7 +121,7 @@ class RWP_Settings {
     }
 
     /**
-     * Add Settings -> Randomizer Wheel page.
+     * Add Settings -> Randomizer Wheel pages.
      */
     public static function add_settings_page() {
         add_options_page(
@@ -125,6 +130,14 @@ class RWP_Settings {
             'manage_options',
             self::PAGE_SLUG,
             [__CLASS__, 'render_settings_page']
+        );
+
+        add_options_page(
+            'Randomizer Wheel Documentation',
+            'RW Documentation',
+            'manage_options',
+            self::DOCS_PAGE_SLUG,
+            [__CLASS__, 'render_documentation_page']
         );
     }
 
@@ -152,13 +165,20 @@ class RWP_Settings {
      * @param string $hook_suffix Admin page hook suffix.
      */
     public static function enqueue_admin_assets($hook_suffix) {
-        if ('settings_page_' . self::PAGE_SLUG !== $hook_suffix) {
+        $allowed_hooks = [
+            'settings_page_' . self::PAGE_SLUG,
+            'settings_page_' . self::DOCS_PAGE_SLUG,
+        ];
+
+        if (!in_array($hook_suffix, $allowed_hooks, true)) {
             return;
         }
 
-        wp_enqueue_media();
-        wp_enqueue_style('wp-color-picker');
-        wp_enqueue_script('wp-color-picker');
+        if ('settings_page_' . self::PAGE_SLUG === $hook_suffix) {
+            wp_enqueue_media();
+            wp_enqueue_style('wp-color-picker');
+            wp_enqueue_script('wp-color-picker');
+        }
 
         wp_enqueue_style(
             'rwp-admin-settings',
@@ -170,7 +190,7 @@ class RWP_Settings {
         wp_enqueue_script(
             'rwp-admin-settings',
             RWP_PLUGIN_URL . 'assets/js/randomizer-wheel-admin.js',
-            ['jquery', 'wp-color-picker'],
+            ['jquery'],
             RWP_VERSION,
             true
         );
@@ -275,6 +295,17 @@ class RWP_Settings {
         }
 
         require RWP_PLUGIN_DIR . 'admin/views/settings-page.php';
+    }
+
+    /**
+     * Render documentation page.
+     */
+    public static function render_documentation_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.'));
+        }
+
+        require RWP_PLUGIN_DIR . 'admin/views/documentation-page.php';
     }
 
     /**

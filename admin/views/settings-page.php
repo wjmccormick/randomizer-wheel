@@ -11,7 +11,7 @@ if (!defined('ABSPATH')) {
     <h1><?php echo esc_html('Randomizer Wheel Settings'); ?></h1>
 
     <div class="notice notice-info inline rwp-settings-notice">
-        <p><?php echo esc_html('Shortcode attributes override these admin defaults. Color values are saved for a future theming phase and are not applied to the frontend yet.'); ?></p>
+        <p><?php echo esc_html('Shortcode attributes override these admin defaults. Use the Documentation page for shortcode examples, palette previews, and attribute reference.'); ?></p>
     </div>
 
     <form action="options.php" method="post" class="rwp-settings-form">

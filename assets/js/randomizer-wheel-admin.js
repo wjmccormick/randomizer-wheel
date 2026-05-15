@@ -1,6 +1,8 @@
 (function ($) {
     $(function () {
-        $('.rwp-color-field').wpColorPicker();
+        if ($.fn.wpColorPicker) {
+            $('.rwp-color-field').wpColorPicker();
+        }
 
         $('.rwp-media-select').on('click', function (event) {
             event.preventDefault();
@@ -25,5 +27,43 @@
 
             frame.open();
         });
+
+        $('.rwp-copy-shortcode').on('click', function () {
+            var button = $(this);
+            var shortcode = String(button.data('shortcode') || '');
+            var originalText = button.text();
+
+            function showCopiedState() {
+                button.text('Copied');
+
+                window.setTimeout(function () {
+                    button.text(originalText);
+                }, 1600);
+            }
+
+            if (window.navigator && window.navigator.clipboard && window.navigator.clipboard.writeText) {
+                window.navigator.clipboard.writeText(shortcode).then(showCopiedState, function () {
+                    fallbackCopy(shortcode, showCopiedState);
+                });
+                return;
+            }
+
+            fallbackCopy(shortcode, showCopiedState);
+        });
+
+        function fallbackCopy(text, callback) {
+            var textarea = $('<textarea readonly></textarea>')
+                .val(text)
+                .css({
+                    position: 'absolute',
+                    left: '-9999px'
+                })
+                .appendTo('body');
+
+            textarea[0].select();
+            document.execCommand('copy');
+            textarea.remove();
+            callback();
+        }
     });
 })(jQuery);
