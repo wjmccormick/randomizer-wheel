@@ -22,6 +22,11 @@ class RWP_Settings {
     const PAGE_SLUG = 'randomizer-wheel';
 
     /**
+     * Documentation page slug.
+     */
+    const DOCS_PAGE_SLUG = 'randomizer-wheel-documentation';
+
+    /**
      * Register admin hooks.
      */
     public static function register() {
@@ -58,11 +63,43 @@ class RWP_Settings {
             'hero_cta_text' => 'Create Your Randomizer Wheel',
             'hero_logo' => '',
             'hero_logo_alt' => 'Randomizer Wheel logo',
-            'primary_color' => '#8b5a2b',
-            'secondary_color' => '#c28a2c',
             'accent_color' => '#b8860b',
-            'button_color' => '#222222',
+            'wheel_palette' => 'classic',
         ];
+    }
+
+
+    /**
+     * Available wheel palette options.
+     *
+     * @return array
+     */
+    public static function palette_options() {
+        return [
+            'classic' => 'Classic',
+            'bourbon' => 'Bourbon',
+            'bright' => 'Bright',
+            'muted' => 'Muted',
+            'monochrome' => 'Monochrome',
+        ];
+    }
+
+    /**
+     * Sanitize a palette slug with a known fallback.
+     *
+     * @param mixed  $value Raw palette value.
+     * @param string $fallback Fallback palette slug.
+     * @return string
+     */
+    public static function sanitize_palette($value, $fallback = 'classic') {
+        $palette = sanitize_key((string) $value);
+        $options = self::palette_options();
+
+        if (array_key_exists($palette, $options)) {
+            return $palette;
+        }
+
+        return array_key_exists($fallback, $options) ? $fallback : 'classic';
     }
 
     /**
@@ -77,11 +114,14 @@ class RWP_Settings {
             $settings = [];
         }
 
-        return array_merge(self::defaults(), $settings);
+        $defaults = self::defaults();
+        $settings = array_intersect_key($settings, $defaults);
+
+        return array_merge($defaults, $settings);
     }
 
     /**
-     * Add Settings -> Randomizer Wheel page.
+     * Add Settings -> Randomizer Wheel pages.
      */
     public static function add_settings_page() {
         add_options_page(
@@ -90,6 +130,14 @@ class RWP_Settings {
             'manage_options',
             self::PAGE_SLUG,
             [__CLASS__, 'render_settings_page']
+        );
+
+        add_options_page(
+            'Randomizer Wheel Documentation',
+            'RW Documentation',
+            'manage_options',
+            self::DOCS_PAGE_SLUG,
+            [__CLASS__, 'render_documentation_page']
         );
     }
 
@@ -106,9 +154,19 @@ class RWP_Settings {
             esc_html('Settings')
         );
 
-        array_unshift($links, $settings_link);
+        $documentation_link = sprintf(
+            '<a href="%1$s">%2$s</a>',
+            esc_url(admin_url('options-general.php?page=' . self::DOCS_PAGE_SLUG)),
+            esc_html('Documentation')
+        );
 
-        return $links;
+        return array_merge(
+            [
+                'settings' => $settings_link,
+                'documentation' => $documentation_link,
+            ],
+            $links
+        );
     }
 
     /**
@@ -117,13 +175,20 @@ class RWP_Settings {
      * @param string $hook_suffix Admin page hook suffix.
      */
     public static function enqueue_admin_assets($hook_suffix) {
-        if ('settings_page_' . self::PAGE_SLUG !== $hook_suffix) {
+        $allowed_hooks = [
+            'settings_page_' . self::PAGE_SLUG,
+            'settings_page_' . self::DOCS_PAGE_SLUG,
+        ];
+
+        if (!in_array($hook_suffix, $allowed_hooks, true)) {
             return;
         }
 
-        wp_enqueue_media();
-        wp_enqueue_style('wp-color-picker');
-        wp_enqueue_script('wp-color-picker');
+        if ('settings_page_' . self::PAGE_SLUG === $hook_suffix) {
+            wp_enqueue_media();
+            wp_enqueue_style('wp-color-picker');
+            wp_enqueue_script('wp-color-picker');
+        }
 
         wp_enqueue_style(
             'rwp-admin-settings',
@@ -135,7 +200,7 @@ class RWP_Settings {
         wp_enqueue_script(
             'rwp-admin-settings',
             RWP_PLUGIN_URL . 'assets/js/randomizer-wheel-admin.js',
-            ['jquery', 'wp-color-picker'],
+            ['jquery'],
             RWP_VERSION,
             true
         );
@@ -171,7 +236,7 @@ class RWP_Settings {
 
         add_settings_section(
             'rwp_branding_section',
-            'Branding & Future Theme Defaults',
+            'Branding & Theme Defaults',
             [__CLASS__, 'render_branding_section'],
             self::PAGE_SLUG
         );
@@ -191,10 +256,8 @@ class RWP_Settings {
         self::add_field('hero_logo', 'Default hero logo URL', 'media', 'rwp_hero_wheel_section', 'Choose or paste the default hero logo URL.');
         self::add_field('hero_logo_alt', 'Default hero logo alt text', 'text', 'rwp_hero_wheel_section', 'Accessible alt text for the hero logo.');
 
-        self::add_field('primary_color', 'Primary color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
-        self::add_field('secondary_color', 'Secondary color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
-        self::add_field('accent_color', 'Accent color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
-        self::add_field('button_color', 'Button color', 'color', 'rwp_branding_section', 'Stored for a future theming phase; not applied to the frontend yet.');
+        self::add_field('accent_color', 'Accent color', 'color', 'rwp_branding_section', 'Used for wheel pointers, winner modal accent text, and close buttons unless a shortcode overrides it.');
+        self::add_field('wheel_palette', 'Wheel palette', 'select', 'rwp_branding_section', 'Controls canvas slice colors. Shortcode attributes can override this per wheel.');
     }
 
     /**
@@ -228,10 +291,8 @@ class RWP_Settings {
             'hero_cta_text' => sanitize_text_field($input['hero_cta_text'] ?? $defaults['hero_cta_text']),
             'hero_logo' => esc_url_raw($input['hero_logo'] ?? $defaults['hero_logo']),
             'hero_logo_alt' => sanitize_text_field($input['hero_logo_alt'] ?? $defaults['hero_logo_alt']),
-            'primary_color' => self::sanitize_hex_color_setting($input['primary_color'] ?? $defaults['primary_color'], $defaults['primary_color']),
-            'secondary_color' => self::sanitize_hex_color_setting($input['secondary_color'] ?? $defaults['secondary_color'], $defaults['secondary_color']),
             'accent_color' => self::sanitize_hex_color_setting($input['accent_color'] ?? $defaults['accent_color'], $defaults['accent_color']),
-            'button_color' => self::sanitize_hex_color_setting($input['button_color'] ?? $defaults['button_color'], $defaults['button_color']),
+            'wheel_palette' => self::sanitize_palette($input['wheel_palette'] ?? $defaults['wheel_palette'], $defaults['wheel_palette']),
         ];
     }
 
@@ -247,24 +308,35 @@ class RWP_Settings {
     }
 
     /**
+     * Render documentation page.
+     */
+    public static function render_documentation_page() {
+        if (!current_user_can('manage_options')) {
+            wp_die(esc_html__('You do not have permission to access this page.'));
+        }
+
+        require RWP_PLUGIN_DIR . 'admin/views/documentation-page.php';
+    }
+
+    /**
      * Render full wheel section description.
      */
     public static function render_full_wheel_section() {
-        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel] and [randomized_wheel]. Shortcode attributes override these values for an individual wheel.') . '</p>';
+        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel]. Shortcode attributes override these values for an individual wheel.') . '</p>';
     }
 
     /**
      * Render hero wheel section description.
      */
     public static function render_hero_wheel_section() {
-        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel_hero] and [whiskey_wheel_hero]. Shortcode attributes override these values for an individual hero wheel.') . '</p>';
+        echo '<p>' . esc_html('Site-wide defaults for [randomizer_wheel_hero]. Shortcode attributes override these values for an individual hero wheel.') . '</p>';
     }
 
     /**
      * Render branding section description.
      */
     public static function render_branding_section() {
-        echo '<p>' . esc_html('These color values are saved for a later theming phase and are not applied to the frontend wheel yet.') . '</p>';
+        echo '<p>' . esc_html('These settings theme frontend wheel instances by default. Shortcode attributes override them for one rendered wheel.') . '</p>';
     }
 
     /**
@@ -324,6 +396,27 @@ class RWP_Settings {
                 checked((bool) $value, true, false),
                 esc_html('Enabled')
             );
+            self::render_description($description);
+            return;
+        }
+
+        if ('select' === $type) {
+            printf(
+                '<select id="%1$s" name="%2$s">',
+                esc_attr('rwp_' . $key),
+                esc_attr($name)
+            );
+
+            foreach (self::palette_options() as $option_value => $option_label) {
+                printf(
+                    '<option value="%1$s" %2$s>%3$s</option>',
+                    esc_attr($option_value),
+                    selected($value, $option_value, false),
+                    esc_html($option_label)
+                );
+            }
+
+            echo '</select>';
             self::render_description($description);
             return;
         }

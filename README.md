@@ -4,14 +4,12 @@ A customizable spin wheel WordPress plugin for random selections, giveaways, con
 
 ## Shortcodes
 
-- `[randomizer_wheel]` — preferred shortcode for the full interactive wheel.
-- `[randomized_wheel]` — backward-compatible alias for the full interactive wheel.
+- `[randomizer_wheel]` — full interactive wheel.
 - `[randomizer_wheel_hero]` — generic decorative/demo hero wheel.
-- `[whiskey_wheel_hero]` — backward-compatible alias for the hero wheel.
 
 ## Full wheel attributes
 
-Supported by `[randomizer_wheel]` and `[randomized_wheel]`:
+Supported by `[randomizer_wheel]`:
 
 | Attribute | Default | Description |
 | --- | --- | --- |
@@ -22,6 +20,8 @@ Supported by `[randomizer_wheel]` and `[randomized_wheel]`:
 | `show_presentation` | `true` | Set to `false` to hide presentation mode controls and markup. |
 | `show_remove_winner` | `true` | Set to `false` to hide remove-winner controls. |
 | `min_items` | `2` | Minimum number of parsed items required before spinning. |
+| `accent_color` | Admin setting, then `#b8860b` | Accent color for the wheel pointer, winner modal accent text, and close button. |
+| `wheel_palette` | Admin setting, then `classic` | Canvas slice palette. Supported values: `classic`, `bourbon`, `bright`, `muted`, `monochrome`. |
 
 ### Full wheel examples
 
@@ -37,9 +37,13 @@ Supported by `[randomizer_wheel]` and `[randomized_wheel]`:
 [randomizer_wheel min_items="3" placeholder="Add one prize per line"]
 ```
 
+```text
+[randomizer_wheel wheel_palette="bright" accent_color="#ee9b00"]
+```
+
 ## Hero wheel attributes
 
-Supported by `[randomizer_wheel_hero]` and `[whiskey_wheel_hero]`:
+Supported by `[randomizer_wheel_hero]`:
 
 | Attribute | Default | Description |
 | --- | --- | --- |
@@ -49,6 +53,8 @@ Supported by `[randomizer_wheel_hero]` and `[whiskey_wheel_hero]`:
 | `cta_text` | `Create Your Randomizer Wheel` | Accessible label for the hero wheel link. |
 | `logo` | Bundled Randomizer Wheel logo | Optional hero logo URL. |
 | `logo_alt` | `Randomizer Wheel logo` | Alt text for the hero logo. |
+| `accent_color` | Admin setting, then `#b8860b` | Hero pointer accent color for this shortcode instance. |
+| `wheel_palette` | Admin setting, then `classic` | Hero canvas slice palette. Supported values: `classic`, `bourbon`, `bright`, `muted`, `monochrome`. |
 
 ### Hero wheel examples
 
@@ -58,6 +64,10 @@ Supported by `[randomizer_wheel_hero]` and `[whiskey_wheel_hero]`:
 
 ```text
 [randomizer_wheel_hero link="/spin/" cta_text="Create your prize wheel"]
+```
+
+```text
+[randomizer_wheel_hero wheel_palette="muted" accent_color="#6a4c93"]
 ```
 
 ## Admin settings
@@ -85,13 +95,19 @@ The settings page stores defaults for the full wheel and hero wheel in one optio
 - Default hero logo URL
 - Default hero logo alt text
 
-### Admin UX and branding controls
+### Frontend theme controls
 
-The settings page includes a direct **Settings** link from the WordPress Plugins screen. Logo URL fields include Media Library selection buttons, and color fields use the WordPress color picker.
+The settings page includes a direct **Settings** link from the WordPress Plugins screen. Logo URL fields include Media Library selection buttons, and the accent color field uses the WordPress color picker.
 
-The following color defaults are stored in `rwp_settings` for a later theming phase and are not applied to the frontend wheel yet:
+The following frontend theme defaults are stored in `rwp_settings` and are applied to both the full wheel and hero wheel:
 
-- Primary color
-- Secondary color
-- Accent color
-- Button color
+- Accent color (`accent_color`) — wheel pointer, winner modal accent text, and close button.
+- Wheel palette (`wheel_palette`) — canvas slice colors. Supported palettes are `classic`, `bourbon`, `bright`, `muted`, and `monochrome`.
+
+Frontend theme resolution is always:
+
+1. Shortcode attribute for that rendered wheel instance.
+2. Saved admin setting from `rwp_settings`.
+3. Bundled default (`#b8860b` for `accent_color`, `classic` for `wheel_palette`).
+
+`wheel_palette` is passed to JavaScript per instance, so multiple wheels on one page can use different palettes. Buttons use the plugin's existing button styling and are not independently color-configurable.
