@@ -1,7 +1,9 @@
 (function ($) {
     $(function () {
-        if ($.fn.wpColorPicker) {
-            $('.rwp-color-field').wpColorPicker();
+        var colorFields = $('.rwp-color-field');
+
+        if (colorFields.length && typeof $.fn.wpColorPicker === 'function') {
+            colorFields.wpColorPicker();
         }
 
         $('.rwp-media-select').on('click', function (event) {
