@@ -33,7 +33,7 @@ class RWP_Settings {
         add_action('admin_menu', [__CLASS__, 'add_settings_page']);
         add_action('admin_init', [__CLASS__, 'register_settings']);
         add_action('admin_enqueue_scripts', [__CLASS__, 'enqueue_admin_assets']);
-        add_filter('plugin_action_links_' . plugin_basename(RWP_PLUGIN_FILE), [__CLASS__, 'add_settings_link']);
+        add_filter('plugin_action_links_' . plugin_basename(RWP_PLUGIN_FILE), [__CLASS__, 'add_plugin_action_links']);
     }
 
     /**
@@ -142,21 +142,37 @@ class RWP_Settings {
     }
 
     /**
-     * Add Settings link to the plugins list table.
+     * Add Settings and Documentation links to the plugins list table.
      *
      * @param array $links Existing action links.
      * @return array
      */
-    public static function add_settings_link($links) {
+    public static function add_plugin_action_links($links) {
         $settings_link = sprintf(
             '<a href="%1$s">%2$s</a>',
             esc_url(admin_url('options-general.php?page=' . self::PAGE_SLUG)),
             esc_html('Settings')
         );
 
-        array_unshift($links, $settings_link);
+        $documentation_link = sprintf(
+            '<a href="%1$s">%2$s</a>',
+            esc_url(admin_url('options-general.php?page=' . self::DOCS_PAGE_SLUG)),
+            esc_html('Documentation')
+        );
+
+        array_unshift($links, $settings_link, $documentation_link);
 
         return $links;
+    }
+
+    /**
+     * Backward-compatible alias for the previous Settings-only action link callback.
+     *
+     * @param array $links Existing action links.
+     * @return array
+     */
+    public static function add_settings_link($links) {
+        return self::add_plugin_action_links($links);
     }
 
     /**

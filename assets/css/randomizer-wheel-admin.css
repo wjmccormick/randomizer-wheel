@@ -100,15 +100,21 @@
 .rwp-palette-swatches {
     display: flex;
     overflow: hidden;
-    min-height: 34px;
+    width: 100%;
+    height: 38px;
     margin-bottom: 0.75rem;
-    border: 1px solid rgba(0, 0, 0, 0.16);
+    line-height: 0;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 999px;
 }
 
 .rwp-palette-swatch {
+    display: block;
     flex: 1 1 0;
     min-width: 20px;
+    min-height: 38px;
+    box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.45), inset 1px 0 0 rgba(0, 0, 0, 0.08);
 }
 
 .rwp-docs-list {
