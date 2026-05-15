@@ -1,8 +1,9 @@
 (function ($) {
     $(function () {
         var colorFields = $('.rwp-color-field');
+        var colorPicker = $.fn && $.fn.wpColorPicker;
 
-        if (colorFields.length && typeof $.fn.wpColorPicker === 'function') {
+        if (colorFields.length > 0 && typeof colorPicker === 'function') {
             colorFields.wpColorPicker();
         }
 
