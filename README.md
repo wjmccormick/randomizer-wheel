@@ -111,3 +111,13 @@ Frontend theme resolution is always:
 3. Bundled default (`#b8860b` for `accent_color`, `classic` for `wheel_palette`).
 
 `wheel_palette` is passed to JavaScript per instance, so multiple wheels on one page can use different palettes. Buttons use the plugin's existing button styling and are not independently color-configurable.
+
+### Palette Preview
+
+| Palette | Colors |
+|---|---|
+| Classic | '#8b5a2b', '#c28a2c', '#2f2f2f', '#d7b377', '#5c4033', '#f3e1b6', '#9c6a2f', '#3a3a3a', '#b8860b', '#6b4423' |
+| Bourbon | '#8b5a2b', '#c28a2c', '#2f2f2f', '#d7b377', '#5c4033', '#f3e1b6', '#9c6a2f', '#3a3a3a', '#b8860b', '#6b4423' |
+| Bright | '#ef476f', '#ffd166', '#06d6a0', '#118ab2', '#8338ec', '#ff9f1c', '#2ec4b6', '#e71d36', '#3a86ff', '#fb5607' |
+| Muted | '#6d6875', '#b5838d', '#e5989b', '#ffb4a2', '#9a8c98', '#c9ada7', '#4a4e69', '#8d99ae', '#a5a58d', '#b7b7a4' |
+| Monochrome | '#6d6875', '#b5838d', '#e5989b', '#ffb4a2', '#9a8c98', '#c9ada7', '#4a4e69', '#8d99ae', '#a5a58d', '#b7b7a4' |
